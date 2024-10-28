@@ -1,0 +1,32 @@
+{
+  "name": "js-os-wasm",
+  "description": "",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Marcin Matuszczyk <marcin1113C@gmail.com>",
+  "homepage": "https://scthe.github.io/js-os-wasm",
+  "repository": "https://github.com/Scthe/js-os-wasm",
+  "main": "src/index.web.tsx",
+  "packageManager": "yarn@4.2.2",
+  "scripts": {
+    "predev": "yarn clean",
+    "dev": "node esbuild-script.js --dev",
+    "prebuild": "yarn clean && yarn gen:init-fs",
+    "build": "node esbuild-script.js",
+    "serve": "http-server build",
+    "clean": "rimraf ./build/* || true",
+    "gen:init-fs": "node scripts/gen-init-fs-json.js"
+  },
+  "dependencies": {
+    "@jitl/quickjs-singlefile-browser-release-asyncify": "^0.31.0",
+    "jszip": "^3.10.1",
+    "pathe": "^1.1.2",
+    "quickjs-emscripten": "^0.31.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "esbuild-copy-static-files": "^0.1.0",
+    "rimraf": "^5.0.7",
+    "typescript": "^5.4.5"
+  }
+}
