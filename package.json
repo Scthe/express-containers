@@ -9,7 +9,7 @@
   "main": "src/index.web.tsx",
   "packageManager": "yarn@4.2.2",
   "scripts": {
-    "predev": "yarn clean",
+    "predev": "yarn clean && yarn gen:init-fs",
     "dev": "node esbuild-script.js --dev",
     "prebuild": "yarn clean && yarn gen:init-fs",
     "build": "node esbuild-script.js",
