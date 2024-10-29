@@ -20,8 +20,9 @@ build
 
 # initial fs
 static/*.zip
+static/*.json
+static/init-fs-express/*
 scripts/gen-init-fs-zip.js
-static/init-fs.json
 
 # custom
 *.code-workspace

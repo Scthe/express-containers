@@ -2,11 +2,13 @@ import {
   QuickJSAsyncContext,
   QuickJSAsyncRuntime,
   QuickJSContext,
+  QuickJSHandle,
   QuickJSRuntime,
 } from 'quickjs-emscripten';
 import { injectVM_Console } from './globals/console';
 import { getFileContent, VirtualFS } from './virtual_fs';
 import { injectVM_Timer, PendingExternalTasks } from './globals/timer';
+import { limitStackTrace } from 'utils';
 
 interface ContextExtras {
   vfs: VirtualFS;
@@ -26,6 +28,7 @@ export function createQuickJSContext(
   // TODO https://github.com/wasmerio/spiderfire/tree/ee79bb8d82c12ee83d12a9f851656ba135f4223e/runtime/src/globals
   injectVM_Console(context, disposables);
   injectVM_Timer(context, disposables);
+  // injectVM_Require(context, disposables);
 
   return context;
 }
@@ -46,13 +49,15 @@ export const executeScriptFile = async (
   }
 
   const result = await context.evalCodeAsync(scriptText, path);
-  const resultHandle = result.unwrap(); // can throw on error!
+  const resultHandle = limitStackTrace(
+    () => result.unwrap() // can throw on error!
+  );
   // console.log('res.unwrap()', context.dump(resultHandle));
 
-  console.log({
-    hasPendingJob: context.runtime.hasPendingJob(),
-    resultHandle,
-  });
+  // console.log({
+  // hasPendingJob: context.runtime.hasPendingJob(),
+  // resultHandle,
+  // });
   context.runtime.executePendingJobs();
   const result2 = context.unwrapResult(
     context.getPromiseState(resultHandle) as any

@@ -1,13 +1,15 @@
-import { fetchFileText } from '../utils';
+import JSZip from 'jszip';
+import { staticFiles } from '../utils';
 
 type FileNode = {
   type: 'file';
-  content: string | undefined; // lazy init
+  // content: string | undefined; // lazy init
+  content: string;
 };
 
 type DirNode = {
   type: 'directory';
-  files: VirtualFS;
+  files: Record<string, FileDirent | undefined>;
 };
 
 export type FileDirent = FileNode | DirNode;
@@ -35,7 +37,7 @@ const parsePath = (path: Path): [string[], string] => {
 
 const mkdirp = (vfs: VirtualFS, path: Path): DirNode => {
   const dirs = splitPath(path);
-  let curDir: DirNode = { type: 'directory', files: vfs };
+  let curDir = { type: 'directory', files: vfs.files } satisfies DirNode;
 
   for (const subdir of dirs) {
     let childDir = curDir.files[subdir];
@@ -58,17 +60,17 @@ const writeFile = (
 ) => {
   const [dirs, fileName] = parsePath(path);
   const dirNode = mkdirp(vfs, dirs);
-  // console.log('write', { path, dir, fileName, dirNode });
+  // console.log('write', { path, dirs, fileName, dirNode });
 
   dirNode.files[fileName] = { type: 'file', content };
 };
 
-export const getFileContent = async (
+export const getDirent = (
   vfs: VirtualFS,
   path: Path
-): Promise<string | undefined> => {
+): FileDirent | undefined => {
   const [dirs, fileName] = parsePath(path);
-  let curDir: DirNode = { type: 'directory', files: vfs };
+  let curDir: DirNode = { type: 'directory', files: vfs.files };
 
   for (const subdir of dirs) {
     if (subdir === '.') continue;
@@ -77,35 +79,65 @@ export const getFileContent = async (
     curDir = childDir;
   }
 
-  const textFile = curDir.files[fileName];
+  return curDir.files[fileName];
+};
+
+export const getFileContent = (
+  vfs: VirtualFS,
+  path: Path
+): string | undefined => {
+  const textFile = getDirent(vfs, path);
   if (textFile?.type !== 'file') return undefined;
 
+  /*// handle lazy load if needed
   if (!textFile.content) {
     let discPath = joinPath(path);
     if (vfs.basePath.length > 0) {
       discPath = `${vfs.basePath}${SEP}${path}`;
     }
-    console.log(`Reading file '${discPath}'`);
+    // console.log(`Reading file '${discPath}'`);
     textFile.content = await fetchFileText(discPath);
-  }
+  }*/
   return textFile.content;
 };
 
-export async function loadVirtualFileSystem(path?: string): Promise<VirtualFS> {
+export async function loadVirtualFileSystem_json(
+  path?: string
+): Promise<VirtualFS> {
   const vfs: VirtualFS = { basePath: '', files: {} };
   if (!path) return vfs;
 
-  const content = await fetchFileText(path);
+  const content = await staticFiles.fetchFileText(path);
   const vsfDesc = JSON.parse(content);
   vfs.basePath = vsfDesc.basePath || '';
 
   // create nodes for all files
   const promises = vsfDesc.files.map(async (path: string) => {
     // console.log(path);
-    // const content = await fetchFileText('init-fs/' + path);
-    writeFile(vfs, path, undefined);
+    const content = await staticFiles.fetchFileText('init-fs/' + path);
+    writeFile(vfs, path, content);
   });
   await Promise.all(promises);
+
+  return vfs;
+}
+
+export async function loadVirtualFileSystem_zip(
+  path?: string
+): Promise<VirtualFS> {
+  const vfs: VirtualFS = { basePath: '', files: {} };
+  if (!path) return vfs;
+
+  const content = await staticFiles.fetchFileBlob(path);
+  const zip = await JSZip.loadAsync(content);
+
+  for (const file of zip.file(/.?/g)) {
+    // console.log('file', file.name);
+    if (file.dir) continue;
+    const content = await file.async('text');
+    const filePath = file.name.replaceAll('\\', '/');
+    writeFile(vfs, filePath, content);
+  }
 
   return vfs;
 }

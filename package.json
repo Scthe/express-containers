@@ -15,10 +15,19 @@
     "build": "node esbuild-script.js",
     "serve": "http-server build",
     "clean": "rimraf ./build/* || true",
-    "gen:init-fs": "node scripts/gen-init-fs-json.js"
+    "run:node": "tsx src/index.node.ts",
+    "gen:init-fs": "node scripts/gen-init-fs-json.js && node scripts/gen-init-fs-zip.js"
+  },
+  "imports": {
+    "#my-quickjs-variant": {
+      "types": "@jitl/quickjs-wasmfile-release-sync",
+      "browser": "@jitl/quickjs-singlefile-browser-release-asyncify",
+      "default": "@jitl/quickjs-wasmfile-release-asyncify"
+    }
   },
   "dependencies": {
     "@jitl/quickjs-singlefile-browser-release-asyncify": "^0.31.0",
+    "@jitl/quickjs-singlefile-browser-release-sync": "^0.31.0",
     "jszip": "^3.10.1",
     "pathe": "^1.1.2",
     "quickjs-emscripten": "^0.31.0"

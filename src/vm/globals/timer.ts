@@ -19,8 +19,8 @@ import { quickJSContext_getExtras } from '../context';
  * TODO use `executePendingJobs()` with promises instead.
  */
 export interface PendingExternalTasks {
-  timeoutIds: NodeJS.Timeout[];
-  intervalIds: NodeJS.Timeout[];
+  timeoutIds: number[];
+  intervalIds: number[];
   waitDonePromise: Promise<undefined>;
   resolveDone: () => void;
 }
@@ -45,7 +45,7 @@ export function injectVM_Timer(
 ) {
   const { pendingExternalTasks } = quickJSContext_getExtras(context);
 
-  const markDone = (type: 'timeout' | 'interval', id: NodeJS.Timeout) => {
+  const markDone = (type: 'timeout' | 'interval', id: number) => {
     if (type === 'timeout') {
       pendingExternalTasks.timeoutIds = pendingExternalTasks.timeoutIds.filter(
         (e) => e !== id
@@ -73,7 +73,7 @@ export function injectVM_Timer(
 
       // QuickJS does not know about this!
       const timeoutId = setTimeout(() => {
-        console.log('setTimeout::inside', arguments);
+        // console.log('setTimeout::inside', arguments);
         markDone('timeout', timeoutId);
         // callFunction(vmFnHandleCopy) will call the vm function
         // in the context of the vm
@@ -91,7 +91,7 @@ export function injectVM_Timer(
       }, timeout);
 
       pendingExternalTasks.timeoutIds.push(timeoutId);
-      return context.newNumber(timeoutId as any);
+      return context.newNumber(timeoutId);
     }
   );
   context.setProp(context.global, 'setTimeout', _setTimeout);

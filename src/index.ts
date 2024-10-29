@@ -1,10 +1,13 @@
-import { isProductionBuild } from './utils';
+import { IS_NODE, isProductionBuild } from './utils';
 import {
   newQuickJSAsyncWASMModuleFromVariant,
   newQuickJSWASMModuleFromVariant,
   QuickJSContext,
 } from 'quickjs-emscripten-core';
-import { loadVirtualFileSystem } from './vm/virtual_fs';
+import {
+  loadVirtualFileSystem_json,
+  loadVirtualFileSystem_zip,
+} from './vm/virtual_fs';
 import { moduleLoader, moduleNormalizer } from './vm/module_loader';
 import { createQuickJSContext, executeScriptFile } from './vm/context';
 import { createPendingExternalTasks } from './vm/globals/timer';
@@ -13,7 +16,8 @@ import { createPendingExternalTasks } from './vm/globals/timer';
 // just pick right option from:
 // https://github.com/justjake/quickjs-emscripten/blob/main/doc/quickjs-emscripten-core/README.md
 // import releaseVariant from '@jitl/quickjs-singlefile-browser-release-sync';
-import releaseVariant from '@jitl/quickjs-singlefile-browser-release-asyncify';
+// import releaseVariant from '@jitl/quickjs-singlefile-browser-release-asyncify';
+import releaseVariant from '#my-quickjs-variant';
 
 // esbuild hot reload
 (function () {
@@ -28,11 +32,12 @@ import releaseVariant from '@jitl/quickjs-singlefile-browser-release-asyncify';
 
 ///////////////////////
 // main fn
-async function main() {
+export async function main() {
   const disposables: Disposable[] = [];
 
-  const vfs = await loadVirtualFileSystem('init-fs.json');
-  console.log('Loaded init virtual fs', vfs);
+  const vfs = await loadVirtualFileSystem_json('init-fs.json');
+  // const vfs = await loadVirtualFileSystem_zip('init-fs-express.zip');
+  console.log('Loaded init virtual fs', IS_NODE ? '' : vfs);
 
   // const QuickJS = await newQuickJSWASMModuleFromVariant(releaseVariant);
   const QuickJS = await newQuickJSAsyncWASMModuleFromVariant(releaseVariant);
@@ -56,7 +61,9 @@ async function main() {
   console.log('--- DONE ---');
 }
 
-main();
+if (!IS_NODE) {
+  main();
+}
 
 function testSimpleScript(context: QuickJSContext) {
   const world = context.newString('world');
