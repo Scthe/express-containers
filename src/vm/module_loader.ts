@@ -1,5 +1,9 @@
 import { join, dirname } from 'pathe';
-import { JSModuleLoader, JSModuleNormalizer } from 'quickjs-emscripten';
+import {
+  JSModuleLoader,
+  JSModuleLoaderAsync,
+  JSModuleNormalizer,
+} from 'quickjs-emscripten';
 import { quickJSContext_getExtras } from './context';
 import { getFileContent } from './virtual_fs';
 
@@ -10,11 +14,11 @@ TODO add expected node modules like 'fs'
      https://github.com/wasmerio/spiderfire/tree/ee79bb8d82c12ee83d12a9f851656ba135f4223e/modules
 */
 
-export const moduleLoader: JSModuleLoader = (moduleName, ctx) => {
+export const moduleLoader: JSModuleLoaderAsync = async (moduleName, ctx) => {
   console.log(`[moduleLoader] '${moduleName}'`);
 
   const { vfs } = quickJSContext_getExtras(ctx);
-  const scriptText = getFileContent(vfs, moduleName);
+  const scriptText = await getFileContent(vfs, moduleName);
   if (!scriptText) {
     throw new Error(`Could not import/require script '${moduleName}'. File not found.`); // prettier-ignore
   }
@@ -29,5 +33,10 @@ export const moduleNormalizer: JSModuleNormalizer = (
   _ctx
 ) => {
   console.log('[moduleNormalizer]', { baseModuleName, requestedName });
-  return join(dirname(baseModuleName), requestedName);
+  let result = join(dirname(baseModuleName), requestedName);
+  if (requestedName.startsWith('.')) {
+    result =
+      requestedName.substring(0, requestedName.indexOf('/') + 1) + result;
+  }
+  return result;
 };

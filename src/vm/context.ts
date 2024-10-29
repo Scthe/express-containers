@@ -1,4 +1,9 @@
-import { QuickJSContext, QuickJSRuntime } from 'quickjs-emscripten';
+import {
+  QuickJSAsyncContext,
+  QuickJSAsyncRuntime,
+  QuickJSContext,
+  QuickJSRuntime,
+} from 'quickjs-emscripten';
 import { injectVM_Console } from './globals/console';
 import { getFileContent, VirtualFS } from './virtual_fs';
 import { injectVM_Timer, PendingExternalTasks } from './globals/timer';
@@ -9,7 +14,7 @@ interface ContextExtras {
 }
 
 export function createQuickJSContext(
-  runtime: QuickJSRuntime,
+  runtime: QuickJSAsyncRuntime,
   disposables: Disposable[],
   extras: ContextExtras
 ) {
@@ -30,17 +35,17 @@ export const quickJSContext_getExtras = (
 ): ContextExtras => (context as any).__myExtras;
 
 export const executeScriptFile = async (
-  context: QuickJSContext,
+  context: QuickJSAsyncContext,
   vfs: VirtualFS,
   path: string
 ) => {
   console.log(`Executing script file: '${path}'`);
-  const scriptText = getFileContent(vfs, path);
+  const scriptText = await getFileContent(vfs, path);
   if (!scriptText) {
     throw new Error(`Could not execute script '${path}'. File not found.`); // prettier-ignore
   }
 
-  const result = context.evalCode(scriptText, path);
+  const result = await context.evalCodeAsync(scriptText, path);
   const resultHandle = result.unwrap(); // can throw on error!
   // console.log('res.unwrap()', context.dump(resultHandle));
 
