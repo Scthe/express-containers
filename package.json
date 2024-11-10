@@ -15,8 +15,12 @@
     "build": "node esbuild-script.js",
     "serve": "http-server build",
     "clean": "rimraf ./build/* || true",
-    "run:node": "tsx src/index.node.ts",
-    "gen:init-fs": "node scripts/gen-init-fs-json.js && node scripts/gen-init-fs-zip.js"
+    "run:gen:fs-zip": "node scripts/gen-init-fs-zip.mjs",
+    "run:bundler": "tsx src/bundler-wasm/index.ts",
+    "run:app": "tsx src/app/index.node.ts",
+    "_UNUSED_build:bundler": "rollup -c packages/bundler/rollup.config.mjs",
+    "_UNUSED_run:gen:fs-json": "node scripts/gen-init-fs-json.js",
+    "lint": "eslint src"
   },
   "imports": {
     "#my-quickjs-variant": {
@@ -28,13 +32,32 @@
   "dependencies": {
     "@jitl/quickjs-singlefile-browser-release-asyncify": "^0.31.0",
     "@jitl/quickjs-singlefile-browser-release-sync": "^0.31.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-inject": "^5.0.5",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "browserify-events": "npm:events@^3.3.0",
+    "browserify-is-arguments": "npm:is-arguments@^1.1.1",
+    "browserify-is-generator-function": "npm:is-generator-function@^1.0.10",
+    "browserify-is-typed-array": "npm:is-typed-array@^1.1.13",
+    "browserify-stream": "npm:stream-browserify@^3.0.0",
+    "browserify-which-typed-array": "npm:which-typed-array@^1.1.15",
     "jszip": "^3.10.1",
+    "native-url": "^0.3.4",
     "pathe": "^1.1.2",
-    "quickjs-emscripten": "^0.31.0"
+    "quickjs-emscripten": "^0.31.0",
+    "rollup": "^4.24.4",
+    "rollup-plugin-polyfill-node": "^0.13.0"
   },
   "devDependencies": {
+    "@types/is-arguments": "^1",
+    "@types/is-generator-function": "^1",
+    "@typescript-eslint/eslint-plugin": "^8.12.1",
+    "@typescript-eslint/parser": "^8.12.1",
     "esbuild": "^0.24.0",
     "esbuild-copy-static-files": "^0.1.0",
+    "eslint": "^9.13.0",
     "rimraf": "^5.0.7",
     "typescript": "^5.4.5"
   }

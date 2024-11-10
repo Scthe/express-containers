@@ -3,6 +3,7 @@
 *.tsbuildinfo
 *.code-workspace
 node_modules
+.vscode
 
 # yarn
 .pnp.*
@@ -22,8 +23,19 @@ build
 static/*.zip
 static/*.json
 static/init-fs-express/*
+static/express-bundle.js
+static/gen-init-fs-zip/node_modules
 scripts/gen-init-fs-zip.js
+
+# static/init-fs with rollup
+static/init-fs/rollup.config.mjs
+static/init-fs/package-lock.json
+static/init-fs/package.json
+static/init-fs/my-bundle.js
+static/pathe
+static/bundled-express.js
 
 # custom
 *.code-workspace
 _references
+log.txt
