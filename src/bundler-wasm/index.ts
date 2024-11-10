@@ -1,14 +1,10 @@
-import { ensureSuffix, removeSuffix, staticFiles } from 'utils';
+import { staticFiles } from 'utils';
 import { promises as fs } from 'fs';
-import { join } from 'path';
-import { InputPluginOption, OutputOptions, rollup, RollupBuild } from 'rollup';
+import { OutputOptions, rollup } from 'rollup';
 import commonjs from '@rollup/plugin-commonjs';
-import {
-  getFileContent,
-  loadVirtualFileSystem_zip,
-  VirtualFS,
-} from 'virtual-fs';
+import { loadVirtualFileSystem_zip, VirtualFS } from 'virtual-fs';
 import json from '@rollup/plugin-json';
+import { vfsPlugin } from './vfs-plugin';
 
 staticFiles.fetchFileText = async (path: string) => {
   // console.log('fetchFileText', path);
@@ -22,161 +18,30 @@ staticFiles.fetchFileBlob = async (path: string) => {
   return fs.readFile(`./static/${path}`);
 };
 
-main();
+main('static/bundled-express.js');
 
-export async function main() {
+export async function main(outputFile: string) {
   // const vfs = await loadVirtualFileSystem_json('init-fs.json');
   // const vfs = await loadVirtualFileSystem_json('init-fs-express-bundle.json');
   const vfs = await loadVirtualFileSystem_zip('vfs.zip');
   console.log('Loaded init virtual fs');
   // vfsDebugTree(vfs);
 
-  await build(vfs, 'static/bundled-express.js');
+  await build(vfs, outputFile);
 
-  console.log('--- DONE ---');
+  // stats
+  const outStats = await fs.stat(outputFile);
+  const sizeMb = outStats.size / 1024 / 1024;
+  console.log(
+    `Written bundled app to '${outputFile}' (${sizeMb.toFixed(1)}MB).` // prettier-ignore
+  );
 }
 
 async function build(vfs: VirtualFS, outputPath: string) {
-  const NODE_STD_LIB = '$__node-std-lib';
-  const PREFIX = `\0polyfill-node.`;
-  const PREFIX_LENGTH = PREFIX.length;
-
   const output: OutputOptions = {
     name: 'my-app',
     file: outputPath,
     format: 'es',
-  };
-  const plugin: InputPluginOption = {
-    name: 'loader',
-    resolveId(source: string, importer: string | undefined) {
-      if (importer && source.startsWith('.')) {
-        source = join(removeSuffix(importer, '.js'), '..', source);
-        source = source.endsWith('.json')
-          ? source
-          : ensureSuffix(source, '.js');
-        source = source.replaceAll('\\', '/');
-      }
-      if (importer && source.endsWith('/.js')) {
-        source = removeSuffix(source, '/.js');
-      }
-      source = removeSuffix(source, '/'); // remove trailing '/'
-      // console.log('\nresolveId', { source, importer });
-
-      // if (modules.hasOwnProperty(source)) {
-      // return source;
-      // }
-
-      // if (importer && importer.startsWith(PREFIX) && source.startsWith('.')) {
-      // const val = importer.substr(PREFIX_LENGTH).replace('.js', '');
-      // source = PREFIX + join(val, '..', source) + '.js';
-      // }
-      // if (source.startsWith(PREFIX)) {
-      // source = source.substr(PREFIX_LENGTH);
-      // }
-      // if (
-      // mods.has(source) ||
-      // (POLYFILLS as any)[source.replace('.js', '') + '.js']
-      // ) {
-      // const id = PREFIX + source;
-      // return { id };
-      // return id;
-      // return source;
-      // return (importer ? importer + '>' : '') + source;
-      // }
-      // return null;
-
-      // node_modules\@rollup\plugin-commonjs\dist\cjs\index.js
-      // node_modules\@rollup\pluginutils\dist\cjs\index.js
-      const tryLoadFromDirectory = (dir: string) => {
-        const source2 = removeSuffix(source, '.js');
-        const modulePath = source2.startsWith(dir)
-          ? source2
-          : `${dir}/${source2}`;
-        const mainFile = getPackageJsonMain(vfs, modulePath) || '';
-
-        const checkFile = (fileName: string) => {
-          const f = `${modulePath}${fileName}`;
-          // console.log(`checkFile '${f}'`);
-          const maybeText = getFileContent(vfs, f);
-          return maybeText.status === 'ok' ? f : undefined;
-        };
-        return (
-          checkFile('/' + mainFile) ||
-          checkFile('/index.js') ||
-          checkFile('/main.js') ||
-          checkFile('.js')
-        );
-      };
-
-      let subdirPath = tryLoadFromDirectory(NODE_STD_LIB);
-      if (subdirPath) {
-        // console.log(`Found in node-std-lib '${subdirPath}'`);
-        return subdirPath;
-      }
-      subdirPath = tryLoadFromDirectory('node_modules');
-      if (subdirPath) {
-        // console.log(`Found in node_modules '${subdirPath}'`);
-        return subdirPath;
-      }
-
-      return source;
-    },
-    load(id: string) {
-      const idRaw = id;
-      // if (id === 'index.js?commonjs-entry') return null;
-
-      if (id.startsWith(PREFIX)) {
-        id = id.substr(PREFIX_LENGTH);
-      }
-      if (id.includes('>')) {
-        id = id.substring(id.lastIndexOf('>') + 1);
-      }
-      if (id.includes('?') || id[0] === '\0') {
-        return null; // leave to commonjs plugin?!
-        id = id.substring(0, id.lastIndexOf('?'));
-      }
-      // console.log('\nload', { id, idRaw });
-
-      const tryLoadFromDirectory = (dir: string) => {
-        const resolveOrder = [
-          ...getPackageJsonMain(vfs, dir + '/' + id),
-          'index.js',
-          'main.js',
-        ];
-
-        const checkFile = (fileName: string) => {
-          const filePath = `${dir}/${id}/${fileName}`;
-          const maybeText = getFileContent(vfs, filePath);
-          // console.log(`Check [${maybeText.status}]: '${filePath}'`);
-          return maybeText.status === 'ok' ? maybeText.content : undefined;
-        };
-        let result = undefined;
-        for (let candidate of resolveOrder) {
-          result = result || checkFile(candidate);
-        }
-        return result;
-      };
-
-      let maybeText = tryLoadFromDirectory(NODE_STD_LIB);
-      if (maybeText) {
-        // console.log('Found in node-std-lib');
-        return maybeText;
-      }
-
-      const maybeFile = getFileContent(vfs, id);
-      if (maybeFile.status === 'ok') {
-        // console.log(`Direct file found: '${id}'`);
-        return maybeFile.content;
-      }
-
-      maybeText = tryLoadFromDirectory('node_modules');
-      if (maybeText) {
-        // console.log('Found in node_modules');
-        return maybeText;
-      }
-
-      throw new Error(`Could not load module '${id}'`);
-    },
   };
 
   let bundle = await rollup({
@@ -184,7 +49,7 @@ async function build(vfs: VirtualFS, outputPath: string) {
     external: ['fs', 'tts', 'net'],
     output,
     plugins: [
-      plugin,
+      vfsPlugin(vfs),
       commonjs({
         sourceMap: false,
         // transformMixedEsModules: true,
@@ -193,31 +58,15 @@ async function build(vfs: VirtualFS, outputPath: string) {
     ],
   });
   // console.log(bundle.cache?.modules);
-  await generateOutputs(bundle, output);
+  // await generateOutputs(bundle, output);
+
+  const _output = await bundle.write(output);
 }
 
-const getPackageJsonMain = (vfs: VirtualFS, modulePath: string): string[] => {
-  const f = `${modulePath}/package.json`;
-  let maybeText = getFileContent(vfs, f);
-  if (maybeText.status !== 'ok') {
-    // console.log(`Dir '${f}': ${maybeText.status}`);
-    return [];
-  }
-
-  const pckJson = JSON.parse(maybeText.content || '');
-  return [
-    pckJson.main || '',
-    pckJson.exports?.['.']?.import || '',
-    pckJson.exports?.['.']?.require || '',
-  ];
-};
-
+/*
 async function generateOutputs(bundle: RollupBuild, outputOpts: OutputOptions) {
   // console.log('------------ pre generateOutputs ------------');
-  const output2 = await bundle.write(outputOpts);
   // console.log(output2);
-
-  /*
   // replace bundle.generate with bundle.write to directly write to disk
   const { output } = await bundle.generate(outputOpts);
 
@@ -266,5 +115,5 @@ async function generateOutputs(bundle: RollupBuild, outputOpts: OutputOptions) {
       console.log(chunkOrAsset);
     }
   }
-  */
 }
+*/
