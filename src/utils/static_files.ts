@@ -9,3 +9,6 @@ export const staticFiles = {
     return response.blob();
   },
 };
+
+export const staticScriptPath = (filename: string) =>
+  `modules-node-stdlib/${filename}`;
