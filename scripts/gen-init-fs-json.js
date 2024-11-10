@@ -1,9 +1,17 @@
 const fsAsync = require('fs').promises;
 const path = require('path');
 
+// TODO unused
+
 const isValidExt = (path) => {
   const p = path.toLowerCase();
-  return p.endsWith('.js') || p.endsWith('.json') || p.includes('license');
+  return (
+    p.endsWith('.js') ||
+    p.endsWith('.mjs') ||
+    p.endsWith('.json') ||
+    p.includes('license') ||
+    p.indexOf('.') === -1 // executables
+  );
 };
 module.exports = { isValidExt };
 
@@ -36,5 +44,7 @@ async function main(vfsRoot) {
   console.log(`Created: '${outFile}'`);
 }
 
-main('static/init-fs');
-main('static/init-fs-express');
+if (!module.parent) {
+  main('static/init-fs');
+  main('static/init-fs-express');
+}
