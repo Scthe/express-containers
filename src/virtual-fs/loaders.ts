@@ -3,11 +3,25 @@ import { staticFiles } from 'utils';
 import { writeFile } from '.';
 import { VirtualFS } from './types';
 
+export const createVirtualFileSystem = (): VirtualFS => ({
+  files: {},
+});
+
+export const writeStaticFile = async (
+  vfs: VirtualFS,
+  staticPath: string,
+  vfsPath?: string
+) => {
+  vfsPath = vfsPath || staticPath;
+  const content = await staticFiles.fetchFileText(staticPath);
+  return writeFile(vfs, vfsPath, content);
+};
+
+/*
 export async function loadVirtualFileSystem_json(
-  path?: string
+  path: string
 ): Promise<VirtualFS> {
-  const vfs: VirtualFS = { basePath: '', files: {} };
-  if (!path) return vfs;
+  const vfs = createVirtualFileSystem();
 
   const content = await staticFiles.fetchFileText(path);
   const vsfDesc = JSON.parse(content);
@@ -16,19 +30,17 @@ export async function loadVirtualFileSystem_json(
   // create nodes for all files
   const promises = vsfDesc.files.map(async (path: string) => {
     // console.log(path);
-    const content = await staticFiles.fetchFileText(vfs.basePath + '/' + path);
-    writeFile(vfs, path, content);
+    return writeStaticFile(vfs, path);
   });
   await Promise.all(promises);
 
   return vfs;
-}
+}*/
 
 export async function loadVirtualFileSystem_zip(
-  path?: string
+  path: string
 ): Promise<VirtualFS> {
-  const vfs: VirtualFS = { basePath: '', files: {} };
-  if (!path) return vfs;
+  const vfs = createVirtualFileSystem();
 
   const content = await staticFiles.fetchFileBlob(path);
   const zip = await JSZip.loadAsync(content);

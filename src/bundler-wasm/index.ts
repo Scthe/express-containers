@@ -1,22 +1,11 @@
-import { staticFiles } from 'utils';
 import { promises as fs } from 'fs';
 import { OutputOptions, rollup } from 'rollup';
 import commonjs from '@rollup/plugin-commonjs';
-import { loadVirtualFileSystem_zip, VirtualFS } from 'virtual-fs';
 import json from '@rollup/plugin-json';
 import { vfsPlugin } from './vfs-plugin';
-
-staticFiles.fetchFileText = async (path: string) => {
-  // console.log('fetchFileText', path);
-  return fs.readFile(`./static/${path}`, { encoding: 'utf8' });
-};
-
-staticFiles.fetchFileBlob = async (path: string) => {
-  // console.log('fetchFileBlob', path);
-  // throw new Error('On node, fetchFileBlob() is not implemented');
-  // return '?' as any;
-  return fs.readFile(`./static/${path}`);
-};
+import '../utils/static_files.node';
+import { loadVirtualFileSystem_zip } from 'virtual-fs/loaders';
+import { VirtualFS } from 'virtual-fs/types';
 
 main('static/bundled-express.js');
 
@@ -39,9 +28,13 @@ export async function main(outputFile: string) {
 
 async function build(vfs: VirtualFS, outputPath: string) {
   const output: OutputOptions = {
-    name: 'my-app',
+    name: 'myApp',
     file: outputPath,
-    format: 'es',
+    format: 'es', // "amd", "cjs", "system", !"es", "iife" or "umd"
+    globals: {
+      fs: 'fs',
+      net: 'net',
+    },
   };
 
   let bundle = await rollup({

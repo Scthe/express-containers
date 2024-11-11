@@ -13,7 +13,7 @@ export type DirNode = {
 export type FileDirent = FileNode | DirNode;
 
 export type VirtualFS = {
-  basePath: string;
+  // basePath: string;
   files: Record<string, FileDirent | undefined>;
 };
 

@@ -8,4 +8,4 @@ export * from './util0';
 
 // default export
 import * as name1 from './util0';
-export default name2 = name1;
+export default name1;

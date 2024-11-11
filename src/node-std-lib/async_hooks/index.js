@@ -1,1 +1,2 @@
-export default name2 = {};
+const name1 = {};
+export default name1;

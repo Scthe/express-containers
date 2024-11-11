@@ -98,7 +98,7 @@ export const getFileContent = (
 };
 
 export const vfsDebugTree = (vfs: VirtualFS) => {
-  console.log(`Virtual file system (basePath '${vfs.basePath}')`);
+  console.log(`Virtual file system`); // (basePath '${vfs.basePath}')
 
   const printDirent = (fileName: string, entry: FileDirent, depth: number) => {
     const ws = ' '.repeat(depth * 2) + '| ';
@@ -107,7 +107,9 @@ export const vfsDebugTree = (vfs: VirtualFS) => {
     if (entry.type === 'file') {
       console.log(ws + fileName);
     } else {
-      console.log(ws + fileName + '/');
+      if (fileName.length) {
+        console.log(ws + fileName + '/');
+      }
       Object.keys(entry.files).forEach((k) => {
         const child = entry.files[k];
         if (child) {

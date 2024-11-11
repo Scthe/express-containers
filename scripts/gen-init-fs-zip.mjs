@@ -50,6 +50,8 @@ const FILE_LIST = await Promise.all([
   copyFiles('node_modules/string_decoder'),
   // add browserify's replacements into '/node_modules'
   ...stdLibSupports.map((e) => listFiles(e)),
+  // ipaddr.js has an.. unfortunate name
+  listFiles('_references/vfs-content-0/init-fs-express/node_modules/ipaddr.js/lib', ''), // prettier-ignore
 ]).then((e) => e.flat());
 // console.log(FILE_LIST);
 
