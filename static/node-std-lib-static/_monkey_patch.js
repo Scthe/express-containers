@@ -43,3 +43,7 @@ Error.captureStackTrace = (error) => {
     },
   });
 };
+
+// Used in non-esm build targets
+globalThis.fs = {};
+globalThis.net = {};
