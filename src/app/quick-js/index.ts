@@ -4,9 +4,9 @@ import {
 } from 'quickjs-emscripten';
 import { initQuickJs } from './init_quickjs';
 import { createQuickJSContext } from './context';
-import { VirtualFS } from '../virtual-fs';
-import { moduleLoader, moduleNormalizer } from './module_loader';
-import { createDisposables } from '../utils/disposables';
+import { VirtualFS } from 'virtual-fs';
+import { moduleLoader, moduleNormalizer } from './module_loader2';
+import { createDisposables } from 'utils/disposables';
 
 class QuickJsVm {
   private readonly runtime: QuickJSAsyncRuntime;

@@ -1,10 +1,11 @@
 import { join, dirname } from 'pathe';
 import { JSModuleLoader, JSModuleNormalizer } from 'quickjs-emscripten';
 import { quickJSContext_getExtras } from './context';
-import { DirNode, getDirent, getFileContent, VirtualFS } from '../virtual-fs';
-import { ArrayElement, staticFiles, staticScriptPath } from '../utils';
+import { DirNode, getDirent, getFileContent, VirtualFS } from 'virtual-fs';
 
 /*
+TODO remove?
+
 TODO better import file name parsing
      https://github.com/wasmerio/spiderfire/blob/ee79bb8d82c12ee83d12a9f851656ba135f4223e/runtime/src/module/loader.rs
 TODO add expected node modules like 'fs'
@@ -86,26 +87,3 @@ export const moduleNormalizer: JSModuleNormalizer = (
   }
   return result;
 };
-
-// TODO remove?
-const NODE_STD_LIBS = ['fs', 'net'] as const;
-
-const NODE_STD_LIB_TEXTS: Record<
-  ArrayElement<typeof NODE_STD_LIBS>,
-  string
-> = {} as any;
-
-export async function initNodeStdLib() {
-  const promises = NODE_STD_LIBS.map(async (moduleName) => {
-    const text = await staticFiles.fetchFileText(
-      staticScriptPath(`${moduleName}.js`)
-    );
-    NODE_STD_LIB_TEXTS[moduleName] = text;
-  });
-
-  await Promise.all(promises);
-}
-
-function tryGetAsNodeStdLib(moduleName: string) {
-  return (NODE_STD_LIB_TEXTS as any)[moduleName];
-}
