@@ -1,20 +1,33 @@
+import { Disposable } from 'quickjs-emscripten';
+
 export type Disposables = ReturnType<typeof createDisposables>;
 
+const DEBUG = false;
+
+interface NamedDisposable {
+  name: string;
+  disposable: Disposable;
+  alive: boolean;
+}
+
 export function createDisposables() {
-  let wasDisposed = false;
-  const items: Disposable[] = [];
+  const items: NamedDisposable[] = [];
 
   const dispose = () => {
-    if (wasDisposed) return;
-    wasDisposed = true;
+    for (const namedDisposable of items.reverse()) {
+      if (!namedDisposable.alive) return;
+      namedDisposable.alive = false;
 
-    for (const disposable of items.reverse()) {
-      (disposable as any).dispose();
+      if (DEBUG) console.log(`[Disposing] ${namedDisposable.name}`);
+      (namedDisposable.disposable as any).dispose();
     }
   };
 
   return {
-    push: (d: Disposable) => items.push(d),
+    push: (name: string, disposable: Disposable) => {
+      if (DEBUG) console.log(`[New disposable] ${name}`);
+      items.push({ name, disposable, alive: true });
+    },
     [Symbol.dispose]: dispose,
     dispose: dispose,
   };

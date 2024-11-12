@@ -39,7 +39,7 @@ async function build(vfs: VirtualFS, outputPath: string) {
 
   let bundle = await rollup({
     input: 'index.js',
-    external: ['fs', 'tts', 'net'],
+    external: ['fs', 'tts', 'net', 'buffer'],
     output,
     plugins: [
       vfsPlugin(vfs),

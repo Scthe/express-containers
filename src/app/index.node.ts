@@ -34,14 +34,19 @@ export async function main() {
 async function initFileSystem() {
   const vfs = createVirtualFileSystem();
 
+  const copyStdLibStatic = (path: string, virtualPath?: string) => {
+    return writeStaticFile(
+      vfs,
+      `node-std-lib-static/${path}`,
+      virtualPath || path
+    );
+  };
+
   await writeStaticFile(vfs, 'bundled-express.js', 'index.js');
-  await writeStaticFile(
-    vfs,
-    'node-std-lib-static/_monkey_patch.js',
-    MONKEY_PATCH_SCRIPT_FILE
-  );
-  await writeStaticFile(vfs, 'node-std-lib-static/fs.js', 'fs.js');
-  await writeStaticFile(vfs, 'node-std-lib-static/net.js', 'net.js');
+  await copyStdLibStatic('_monkey_patch.js', MONKEY_PATCH_SCRIPT_FILE);
+  await copyStdLibStatic('fs.js');
+  await copyStdLibStatic('net.js');
+  await copyStdLibStatic('buffer.js');
 
   vfsDebugTree(vfs);
   return vfs;

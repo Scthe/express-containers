@@ -29,7 +29,7 @@ export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
 
         return resolveDirectoryImport(vfs, modulePath, (filePath: string) => {
           const maybeText = getFileContent(vfs, filePath);
-          console.log(`[resolveId] Check [${maybeText.status}] '${filePath}'`);
+          // console.log(`[resolveId] Check [${maybeText.status}] '${filePath}'`);
           return maybeText.status === 'ok' ? filePath : undefined;
         });
       };
@@ -71,7 +71,7 @@ export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
           (filePath: string) => {
             filePath = removeSuffix(filePath, '/'); // remove trailing '/'
             const maybeText = getFileContent(vfs, filePath);
-            console.log(`[load] Check [${maybeText.status}] '${filePath}'`);
+            // console.log(`[load] Check [${maybeText.status}] '${filePath}'`);
             return maybeText.status === 'ok' ? maybeText.content : undefined;
           }
         );

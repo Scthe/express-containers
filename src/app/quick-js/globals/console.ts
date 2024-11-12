@@ -19,7 +19,7 @@ export function injectVM_Console(
   context.setProp(consoleHandle, 'depth', depthHandle);
   context.setProp(context.global, 'console', consoleHandle);
 
-  disposables.push(consoleHandle);
-  disposables.push(logHandle);
-  disposables.push(depthHandle);
+  disposables.push('console object', consoleHandle);
+  disposables.push('console.log', logHandle);
+  disposables.push('console.depth', depthHandle);
 }

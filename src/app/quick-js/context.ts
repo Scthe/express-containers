@@ -25,7 +25,8 @@ export async function createQuickJSContext(
 ): Promise<QuickJSAsyncContext> {
   const context = runtime.newContext();
   const disposables = createDisposables();
-  runtimeDisposables.push(disposables);
+  runtimeDisposables.push('context-related', disposables);
+  disposables.push('context', context);
 
   // add extra data
   const eventLoop = new EventLoop();

@@ -9,9 +9,9 @@ globalThis.process = (function () {
 
 const global = globalThis;
 
-global.XMLHttpRequest = function () {
-  return { open: () => undefined };
-};
+// global.XMLHttpRequest = function () {
+// return { open: () => undefined };
+// };
 
 /*
 const window = global;
@@ -45,5 +45,5 @@ Error.captureStackTrace = (error) => {
 };
 
 // Used in non-esm build targets
-globalThis.fs = {};
-globalThis.net = {};
+// globalThis.fs = {};
+// globalThis.net = {};

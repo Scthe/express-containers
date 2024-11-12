@@ -15,13 +15,13 @@ class QuickJsVm {
 
   constructor(private readonly QuickJS: QuickJSAsyncWASMModule) {
     this.runtime = QuickJS.newRuntime();
-    this.disposables.push(this.runtime);
+    this.disposables.push('QuickJS_runtime', this.runtime);
 
     this.runtime.setModuleLoader(moduleLoader, moduleNormalizer);
   }
 
   shutdown() {
-    // console.log('Memory dump:', rt.dumpMemoryUsage());
+    // console.log('Memory dump:', this.runtime.dumpMemoryUsage());
     this.disposables.dispose();
   }
 
