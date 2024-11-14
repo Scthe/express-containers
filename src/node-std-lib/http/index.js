@@ -144,7 +144,7 @@ export const STATUS_CODES = {
 };
 
 export class IncomingMessage {}
-export class ServerResponse {}
+export { Response as ServerResponse };
 
 globalThis.__portListeners = (() => {
   const data = {};
@@ -174,7 +174,13 @@ globalThis.__portListeners = (() => {
       });
       const fakeResp = new Response('__fake: true');
       expressApp(fakeReq, fakeResp);
-      console.log('response', fakeResp);
+
+      console.log('Express response:', {
+        keys: Object.keys(fakeResp),
+        statusCode: fakeResp.statusCode,
+        data: fakeResp.data,
+        _headers: fakeResp._headers,
+      });
     },
   };
 })();

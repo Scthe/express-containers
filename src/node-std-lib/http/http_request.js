@@ -11,6 +11,9 @@ var { inherits } = require('util');
 var Request = (module.exports = function Request(xhr, params) {
   // console.log('Request()', xhr, params);
   var self = this;
+  Object.keys(params).forEach((k) => {
+    self[k] = params[k];
+  });
   self.writable = true;
   self.xhr = xhr;
   self.body = [];
@@ -21,6 +24,7 @@ var Request = (module.exports = function Request(xhr, params) {
     params.host +
     (params.port ? ':' + params.port : '') +
     (params.path || '/');
+  self.url = self.uri;
 
   if (typeof params.withCredentials === 'undefined') {
     params.withCredentials = true;

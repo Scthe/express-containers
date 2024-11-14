@@ -121,6 +121,7 @@ Response.prototype._emitData = function (res) {
 
 // https://nodejs.org/api/stream.html#writableendchunk-encoding-callback
 Response.prototype.end = function (chunk, encoding, callback) {
+  // console.log('Response.prototype.end', chunk);
   this.data += chunk;
 };
 

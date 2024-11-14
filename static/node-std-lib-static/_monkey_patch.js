@@ -2,7 +2,10 @@
 globalThis.process = (function () {
   const p = {};
   p.cwd = () => '';
-  p.env = {}; // https://nodejs.org/api/process.html#processenv
+  // https://nodejs.org/api/process.html#processenv
+  p.env = {
+    DEBUG: '*',
+  };
   p.browser = true;
   return p;
 })();
@@ -50,5 +53,8 @@ Error.captureStackTrace = (error) => {
 
 // globalThis.setImmediate = (fn) => setTimeout(fn, 0);
 globalThis.setImmediate = (fn) => {
-  fn();
+  // fn();
+  setTimeout(() => {
+    fn();
+  }, 0);
 };
