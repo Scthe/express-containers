@@ -102,8 +102,6 @@ Request.prototype.write = function (s) {
   this.body.push(s);
 };
 
-Request.prototype.resume = function () {}; // ?
-
 Request.prototype.destroy = function (s) {
   this.xhr.__aborted = true;
   this.xhr.abort();

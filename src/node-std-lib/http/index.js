@@ -1,3 +1,4 @@
+import { finished } from 'stream';
 import Request from './http_request';
 import Response from './http_response';
 import * as url from 'url';
@@ -161,18 +162,25 @@ globalThis.__portListeners = (() => {
         open: () => {},
         onerror: () => {},
         onreadystatechange: () => {},
-        __fake: true,
+        __fakeXhr: true,
       };
+
+      const host = 'localhost';
+      const path = '';
       const fakeReq = new Request(fakeXhr, {
-        url: `http://localhost:${port}/`,
-        host: 'localhost',
+        url: `http://${host}:${port}/${path}`,
+        host,
         port,
-        path: '/',
+        path: '/' + path,
         method: 'GET',
         headers: {},
-        __fake: true,
+        // extra mocks
+        listeners: () => [],
+        resume: () => {},
+        finished: true, // finished streaming request, can respond now
+        __fakeRequest: true,
       });
-      const fakeResp = new Response('__fake: true');
+      const fakeResp = new Response('__fakeResponse: true');
       expressApp(fakeReq, fakeResp);
 
       console.log('Express response:', {
