@@ -1,10 +1,10 @@
-import { QuickJSAsyncContext } from 'quickjs-emscripten';
+import { QuickJSAsyncContext, QuickJSContext } from 'quickjs-emscripten';
 import { withLimitedStackTrace } from 'utils';
 import { VirtualFS, getFileContent } from 'virtual-fs';
 import { quickJSContext_getExtras } from './context';
 
 export const executeScriptFile = async (
-  context: QuickJSAsyncContext,
+  context: QuickJSContext,
   vfs: VirtualFS,
   path: string
 ) => {
@@ -14,7 +14,8 @@ export const executeScriptFile = async (
     throw new Error(`Could not execute script '${path}'. Error: ${scriptText.error}.`); // prettier-ignore
   }
 
-  const result = await context.evalCodeAsync(scriptText.content, path);
+  // const result = await context.evalCodeAsync(scriptText.content, path);
+  const result = context.evalCode(scriptText.content, path);
   if (result.error) {
     const e = context.dump(result.error);
     const stack = e.stack ? e.stack.split('\n').join('\n') : ''; // yes, this is required

@@ -1,4 +1,4 @@
-export * from 'native-url';
+export * from 'browserify-url';
 export * from './fileURLToPath';
 
 // import { resolve as pathResolve } from 'path';

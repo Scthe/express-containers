@@ -37,6 +37,7 @@ const stdLibSupports = await resolveFromPackageJson([
   'browserify-is-typed-array',
   'browserify-stream',
   'browserify-which-typed-array',
+  'browserify-url',
 ]);
 
 const FILE_LIST = await Promise.all([
@@ -46,7 +47,6 @@ const FILE_LIST = await Promise.all([
   listFiles('src/node-std-lib', '$__node-std-lib'),
   // add external modules required by standard lib replacement into '/node_modules'
   copyFiles('node_modules/pathe'),
-  copyFiles('node_modules/native-url'),
   copyFiles('node_modules/readable-stream'),
   copyFiles('node_modules/string_decoder'),
   // add browserify's replacements into '/node_modules'

@@ -28,7 +28,7 @@ export async function createQuickJSContext(
   runtime: QuickJSAsyncRuntime,
   runtimeDisposables: DisposablesList,
   extras: Pick<ContextExtras, 'vfs'>
-): Promise<QuickJSAsyncContext> {
+): Promise<QuickJSContext> {
   const context = runtime.newContext();
   const disposables = createDisposables();
   runtimeDisposables.push('context-related', disposables);

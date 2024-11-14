@@ -27,12 +27,13 @@
     "#my-quickjs-variant": {
       "types": "@jitl/quickjs-wasmfile-release-sync",
       "browser": "@jitl/quickjs-singlefile-browser-release-asyncify",
-      "default": "@jitl/quickjs-wasmfile-release-asyncify"
+      "default": "@jitl/quickjs-wasmfile-release-sync"
     }
   },
   "dependencies": {
     "@jitl/quickjs-singlefile-browser-release-asyncify": "^0.31.0",
     "@jitl/quickjs-singlefile-browser-release-sync": "^0.31.0",
+    "@jitl/quickjs-wasmfile-debug-sync": "^0.31.0",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-inject": "^5.0.5",
     "@rollup/plugin-json": "^6.1.0",
@@ -44,9 +45,9 @@
     "browserify-is-generator-function": "npm:is-generator-function@^1.0.10",
     "browserify-is-typed-array": "npm:is-typed-array@^1.1.13",
     "browserify-stream": "npm:stream-browserify@^3.0.0",
+    "browserify-url": "npm:url@^0.11.4",
     "browserify-which-typed-array": "npm:which-typed-array@^1.1.15",
     "jszip": "^3.10.1",
-    "native-url": "^0.3.4",
     "pathe": "^1.1.2",
     "quickjs-emscripten": "^0.31.0",
     "rollup": "^4.24.4",
