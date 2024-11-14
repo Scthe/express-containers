@@ -1,10 +1,10 @@
 import { QuickJSContext } from 'quickjs-emscripten';
-import { Disposables } from 'utils';
+import { DisposablesList } from 'utils';
 
 /** https://github.com/justjake/quickjs-emscripten/blob/aa48b619983f02c5691d989c0771a3421178ce4b/packages/quickjs-for-quickjs/src/index.mts#L22 */
 export function injectVM_Console(
   context: QuickJSContext,
-  disposables: Disposables
+  disposables: DisposablesList
 ) {
   const consoleHandle = context.newObject();
   const logHandle = context.newFunction('console.log', (...args) => {

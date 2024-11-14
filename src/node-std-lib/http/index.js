@@ -1,4 +1,5 @@
 import Request from './http_request';
+import Response from './http_response';
 import * as url from 'url';
 
 export function request(params, cb) {
@@ -145,11 +146,54 @@ export const STATUS_CODES = {
 export class IncomingMessage {}
 export class ServerResponse {}
 
-export function createServer(arg0) {
-  console.log('fake-http createServer()', arg0);
+globalThis.__portListeners = (() => {
+  const data = {};
   return {
-    listen: (server, args) => {
-      console.log('fake-http server.listen()', args);
+    add: (port, expressApp) => {
+      data[port] = expressApp;
+    },
+    invoke: (port) => {
+      console.log('Call express app from port', port);
+      const expressApp = data[port];
+      if (!expressApp) return;
+
+      const fakeXhr = {
+        open: () => {},
+        onerror: () => {},
+        onreadystatechange: () => {},
+        __fake: true,
+      };
+      const fakeReq = new Request(fakeXhr, {
+        url: `http://localhost:${port}/`,
+        host: 'localhost',
+        port,
+        path: '/',
+        method: 'GET',
+        headers: {},
+        __fake: true,
+      });
+      const fakeResp = new Response('__fake: true');
+      expressApp(fakeReq, fakeResp);
+      console.log('response', fakeResp);
+    },
+  };
+})();
+
+// TODO separate file
+export function createServer(expressApp, ...args) {
+  console.log('fake-http createServer()', expressApp);
+  return {
+    // listen: (server, callback, ...args) => {
+    listen: (port, afterInitCb) => {
+      console.log(`fake-http server.listen(port=${port})`);
+      // console.log(this); // ignore
+      // console.log(0, port);
+      // console.log(1, callback);
+      __platform_registerPortListener(port);
+      globalThis.__portListeners.add(port, expressApp);
+
+      //
+      afterInitCb();
     },
   };
 }

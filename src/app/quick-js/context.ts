@@ -7,20 +7,26 @@ import { injectVM_Console } from './globals/console';
 import { injectVM_Timer } from './globals/timer';
 import { EventLoop } from './event_loop';
 import { VirtualFS } from 'virtual-fs';
-import { createDisposables, Disposables } from 'utils';
+import { createDisposables, DisposablesList } from 'utils';
 import { executeScriptFile } from './exec_script_file';
+import {
+  createRequestInterceptor,
+  injectVM_requestIntercepter,
+  RequestInterceptor,
+} from './globals/requestIntercept';
 
 interface ContextExtras {
   vfs: VirtualFS;
   eventLoop: EventLoop;
-  disposables: Disposables;
+  disposables: DisposablesList;
+  requestInterceptor: RequestInterceptor;
 }
 
 export const MONKEY_PATCH_SCRIPT_FILE = '$__monkey_patch.js';
 
 export async function createQuickJSContext(
   runtime: QuickJSAsyncRuntime,
-  runtimeDisposables: Disposables,
+  runtimeDisposables: DisposablesList,
   extras: Pick<ContextExtras, 'vfs'>
 ): Promise<QuickJSAsyncContext> {
   const context = runtime.newContext();
@@ -34,12 +40,14 @@ export async function createQuickJSContext(
     ...extras,
     eventLoop,
     disposables,
+    requestInterceptor: createRequestInterceptor(context),
   } satisfies ContextExtras;
 
   // init context globals
   // TODO https://github.com/wasmerio/spiderfire/tree/ee79bb8d82c12ee83d12a9f851656ba135f4223e/runtime/src/globals
   injectVM_Console(context, disposables);
   injectVM_Timer(context, eventLoop);
+  injectVM_requestIntercepter(context);
   // injectVM_Require(context, disposables);
   // injectVM_Process(context, disposables);
 

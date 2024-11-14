@@ -3,6 +3,7 @@ import { EventLoop } from '../event_loop';
 
 /** https://github.com/justjake/quickjs-emscripten/issues/73#issuecomment-1348771980 */
 export function injectVM_Timer(context: QuickJSContext, eventLoop: EventLoop) {
+  // TODO use registerGlobalFn
   const _setTimeout = context.newFunction(
     'setTimeout',
     (functionRefHandle, delayHandle, ...paramHandles) => {

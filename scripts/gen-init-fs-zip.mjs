@@ -30,6 +30,7 @@ async function createZipFS(files, outputPath) {
 }
 
 const stdLibSupports = await resolveFromPackageJson([
+  'browserify-buffer',
   'browserify-events',
   'browserify-is-arguments',
   'browserify-is-generator-function',

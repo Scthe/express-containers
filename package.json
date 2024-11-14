@@ -18,6 +18,7 @@
     "run:gen:fs-zip": "node scripts/gen-init-fs-zip.mjs",
     "run:bundler": "tsx src/bundler-wasm/index.ts",
     "run:app": "tsx src/app/index.node.ts",
+    "run:node": "yarn run:gen:fs-zip && yarn run:bundler && yarn run:app",
     "_UNUSED_build:bundler": "rollup -c packages/bundler/rollup.config.mjs",
     "_UNUSED_run:gen:fs-json": "node scripts/gen-init-fs-json.js",
     "lint": "eslint src"
@@ -37,6 +38,7 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.1.1",
+    "browserify-buffer": "npm:buffer@^6.0.0",
     "browserify-events": "npm:events@^3.3.0",
     "browserify-is-arguments": "npm:is-arguments@^1.1.1",
     "browserify-is-generator-function": "npm:is-generator-function@^1.0.10",

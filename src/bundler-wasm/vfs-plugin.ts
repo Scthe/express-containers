@@ -21,7 +21,7 @@ export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
         source = removeSuffix(source, '/.js');
       }
       source = removeSuffix(source, '/'); // remove trailing '/'
-      console.log('\nresolveId', { source, importer, orgSource });
+      // console.log('\nresolveId', { source, importer, orgSource });
 
       const tryLoadFromDirectory = (dir: string) => {
         const source2 = removeSuffix(source, '.js');

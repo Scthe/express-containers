@@ -3,12 +3,15 @@
 const Stream = require('stream');
 const util = require('util');
 
-var Response = (module.exports = function (res) {
+var Response = (module.exports = function Response(res) {
+  // console.log('Response()', res);
   this.offset = 0;
   this.readable = true;
+  this._headers = {};
+  this.data = '';
 });
 
-util.inherits(Response, Stream);
+util.inherits(Response, Stream.Stream);
 
 var capable = {
   streaming: true,
@@ -50,8 +53,16 @@ Response.prototype.getResponse = function (xhr) {
   return xhr.responseText;
 };
 
+Response.prototype.setHeader = function (key, value) {
+  this._headers[key.toLowerCase()] = value;
+};
+
 Response.prototype.getHeader = function (key) {
-  return this.headers[key.toLowerCase()];
+  return this._headers[key.toLowerCase()];
+};
+
+Response.prototype.removeHeader = function (key) {
+  delete this._headers[key.toLowerCase()];
 };
 
 Response.prototype.handle = function (res) {
@@ -106,6 +117,11 @@ Response.prototype._emitData = function (res) {
     this.emit('data', respBody.slice(this.offset));
     this.offset = respBody.length;
   }
+};
+
+// https://nodejs.org/api/stream.html#writableendchunk-encoding-callback
+Response.prototype.end = function (chunk, encoding, callback) {
+  this.data += chunk;
 };
 
 var isArray =

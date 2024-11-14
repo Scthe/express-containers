@@ -1,16 +1,20 @@
 import { Disposable } from 'quickjs-emscripten';
 
-export type Disposables = ReturnType<typeof createDisposables>;
+type WithDispose = Omit<Disposable, 'alive'>;
+
+export type DisposablesList = WithDispose & {
+  push: (name: string, disposable: Disposable | DisposablesList) => void;
+};
 
 const DEBUG = false;
 
 interface NamedDisposable {
   name: string;
-  disposable: Disposable;
+  disposable: WithDispose;
   alive: boolean;
 }
 
-export function createDisposables() {
+export function createDisposables(): DisposablesList {
   const items: NamedDisposable[] = [];
 
   const dispose = () => {
@@ -24,7 +28,7 @@ export function createDisposables() {
   };
 
   return {
-    push: (name: string, disposable: Disposable) => {
+    push: (name: string, disposable: WithDispose) => {
       if (DEBUG) console.log(`[New disposable] ${name}`);
       items.push({ name, disposable, alive: true });
     },

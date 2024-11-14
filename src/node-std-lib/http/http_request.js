@@ -8,7 +8,8 @@ var { inherits } = require('util');
 // import Response from './http_response';
 // import { inherits } from 'util';
 
-var Request = (module.exports = function (xhr, params) {
+var Request = (module.exports = function Request(xhr, params) {
+  // console.log('Request()', xhr, params);
   var self = this;
   self.writable = true;
   self.xhr = xhr;
@@ -79,7 +80,7 @@ var Request = (module.exports = function (xhr, params) {
   };
 });
 
-inherits(Request, Stream);
+inherits(Request, Stream.Stream);
 
 Request.prototype.setHeader = function (key, value) {
   this._headers[key.toLowerCase()] = value;
@@ -96,6 +97,8 @@ Request.prototype.removeHeader = function (key) {
 Request.prototype.write = function (s) {
   this.body.push(s);
 };
+
+Request.prototype.resume = function () {}; // ?
 
 Request.prototype.destroy = function (s) {
   this.xhr.__aborted = true;

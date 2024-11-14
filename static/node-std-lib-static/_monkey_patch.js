@@ -47,3 +47,8 @@ Error.captureStackTrace = (error) => {
 // Used in non-esm build targets
 // globalThis.fs = {};
 // globalThis.net = {};
+
+// globalThis.setImmediate = (fn) => setTimeout(fn, 0);
+globalThis.setImmediate = (fn) => {
+  fn();
+};

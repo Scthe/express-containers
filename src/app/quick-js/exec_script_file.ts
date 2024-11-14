@@ -38,6 +38,6 @@ export const executeScriptFile = async (
 
   const { eventLoop } = quickJSContext_getExtras(context);
   // console.log('await external tasks', pendingExternalTasks);
-  await eventLoop.drain();
+  return () => eventLoop.drain();
   // console.log('await external tasks :: done', pendingExternalTasks);
 };

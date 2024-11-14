@@ -2,6 +2,7 @@ import { createQuickJsVm } from './quick-js';
 import {
   MONKEY_PATCH_SCRIPT_FILE,
   quickJSContext_Dispose,
+  quickJSContext_getExtras,
 } from './quick-js/context';
 import 'utils/static_files.node';
 import {
@@ -10,6 +11,7 @@ import {
   vfsDebugTree,
 } from 'virtual-fs';
 import { executeScriptFile } from './quick-js/exec_script_file';
+import { QuickJSContext } from 'quickjs-emscripten';
 
 main();
 
@@ -22,7 +24,12 @@ export async function main() {
 
   // run the script
   console.log('\n--- Starting the app ---');
-  await executeScriptFile(context, vfs, 'index.js');
+  const drainEventLoop = await executeScriptFile(context, vfs, 'index.js');
+
+  sendFakeRequest(context, 3000);
+
+  quickJSContext_getExtras(context).eventLoop.sigKill();
+  await drainEventLoop();
 
   // cleanup
   console.log('Script finished. Disposing of the references');
@@ -46,8 +53,18 @@ async function initFileSystem() {
   await copyStdLibStatic('_monkey_patch.js', MONKEY_PATCH_SCRIPT_FILE);
   await copyStdLibStatic('fs.js');
   await copyStdLibStatic('net.js');
-  await copyStdLibStatic('buffer.js');
+  // await copyStdLibStatic('buffer.js');
 
   vfsDebugTree(vfs);
   return vfs;
+}
+
+function sendFakeRequest(context: QuickJSContext, port: number) {
+  // TODO service worker to intercept?
+  const { eventLoop, requestInterceptor } = quickJSContext_getExtras(context);
+
+  const interceptOk = requestInterceptor.tryIntercept(port);
+  if (!interceptOk) {
+    console.error(`Not intercepted port ${port}, would have send real request`);
+  }
 }

@@ -1,6 +1,8 @@
 type TimerId = number | NodeJS.Timeout;
 type DrainCallback = () => void;
 
+let NEXT_PERPETUAL_ID = 1;
+
 /**
  * Sometimes the QuickJS script finishes, but there are still tasks for
  * it to execute. E.g. `setTimeout()`'s callback:
@@ -21,6 +23,8 @@ type DrainCallback = () => void;
 export class EventLoop {
   private timeoutIds: TimerId[] = [];
   private intervalIds: TimerId[] = [];
+  private perpetualsIds: number[] = [];
+
   private drainCallbacks: DrainCallback[] = [];
   /** Resolved when all tasks are done */
   // private readonly waitDonePromise: Promise<undefined>;
@@ -40,6 +44,18 @@ export class EventLoop {
       this.intervalIds = this.intervalIds.filter((e) => e !== id);
     }
 
+    this.resolveIfIsDone();
+  };
+
+  sigKill = () => {
+    console.log(`--- EVENT LOOP: SIG_KILL --- `);
+    this.timeoutIds.forEach((tId) => this.markTimerDone('timeout', tId));
+    this.intervalIds.forEach((tId) => this.markTimerDone('interval', tId));
+    this.perpetualsIds = [];
+
+    if (!this.isDone()) {
+      throw new Error('EventLoop.sigKill() should have finished all outstanding tasks'); // prettier-ignore
+    }
     this.resolveIfIsDone();
   };
 
@@ -67,7 +83,11 @@ export class EventLoop {
   }
 
   private isDone() {
-    return this.timeoutIds.length === 0 && this.intervalIds.length === 0;
+    return (
+      this.timeoutIds.length === 0 &&
+      this.intervalIds.length === 0 &&
+      this.perpetualsIds.length === 0
+    );
   }
 
   addTimeout = (fn: () => void, timer: number): number => {
@@ -81,5 +101,11 @@ export class EventLoop {
     this.timeoutIds.push(timeoutId);
 
     return timeoutId as any;
+  };
+
+  addPerpetual = (): number => {
+    const id = NEXT_PERPETUAL_ID++;
+    this.perpetualsIds.push(id);
+    return id;
   };
 }
