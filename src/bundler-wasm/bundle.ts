@@ -1,43 +1,27 @@
-import { promises as fs } from 'fs';
-import { OutputOptions, rollup } from 'rollup';
-import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
+import { OutputOptions, rollup } from '#my-rollup';
+// import { OutputOptions, rollup } from 'rollup';
 import { vfsPlugin } from './vfs-plugin';
-import '../utils/static_files.node';
-import { loadVirtualFileSystem_zip } from 'virtual-fs/loaders';
 import { VirtualFS } from 'virtual-fs/types';
 
-main('static/bundled-express.js');
+// import commonjs from '@rollup/plugin-commonjs';
+// import json from '@rollup/plugin-json';
+import commonjs from './commonjs/src/index';
+import json from './json/json-plugin';
 
-export async function main(outputFile: string) {
-  // const vfs = await loadVirtualFileSystem_json('init-fs.json');
-  // const vfs = await loadVirtualFileSystem_json('init-fs-express-bundle.json');
-  const vfs = await loadVirtualFileSystem_zip('vfs.zip');
-  console.log('Loaded init virtual fs');
-  // vfsDebugTree(vfs);
+// TODO [IGNORE] uninstall original plugins?
 
-  await build(vfs, outputFile);
+export const createBundleOutput = (outputPath: string): OutputOptions => ({
+  name: 'myApp',
+  file: outputPath,
+  format: 'es', // "amd", "cjs", "system", !"es", "iife" or "umd"
+  globals: {
+    fs: 'fs',
+    net: 'net',
+  },
+});
 
-  // stats
-  const outStats = await fs.stat(outputFile);
-  const sizeMb = outStats.size / 1024 / 1024;
-  console.log(
-    `Written bundled app to '${outputFile}' (${sizeMb.toFixed(1)}MB).` // prettier-ignore
-  );
-}
-
-async function build(vfs: VirtualFS, outputPath: string) {
-  const output: OutputOptions = {
-    name: 'myApp',
-    file: outputPath,
-    format: 'es', // "amd", "cjs", "system", !"es", "iife" or "umd"
-    globals: {
-      fs: 'fs',
-      net: 'net',
-    },
-  };
-
-  let bundle = await rollup({
+export async function buildBundle(vfs: VirtualFS, output: OutputOptions) {
+  return rollup({
     input: 'index.js',
     external: ['fs', 'tts', 'net'],
     output,
@@ -47,13 +31,9 @@ async function build(vfs: VirtualFS, outputPath: string) {
         sourceMap: false,
         // transformMixedEsModules: true,
       }),
-      json(),
+      json() as any,
     ],
   });
-  // console.log(bundle.cache?.modules);
-  // await generateOutputs(bundle, output);
-
-  const _output = await bundle.write(output);
 }
 
 /*

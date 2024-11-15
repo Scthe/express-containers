@@ -425,6 +425,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/browser@npm:^4.26.0":
+  version: 4.26.0
+  resolution: "@rollup/browser@npm:4.26.0"
+  dependencies:
+    "@types/estree": "npm:1.0.6"
+  checksum: 10c0/494f896aa309f1b1976dd8115b129641bc6ce81e3ac340d8e82677a019588858778a1a471da012046a0c02b740e933626cb5130c447c2ab19b823b8b329a4e62
+  languageName: node
+  linkType: hard
+
 "@rollup/plugin-commonjs@npm:^28.0.1":
   version: 28.0.1
   resolution: "@rollup/plugin-commonjs@npm:28.0.1"
@@ -1980,6 +1989,7 @@ __metadata:
     "@jitl/quickjs-singlefile-browser-release-asyncify": "npm:^0.31.0"
     "@jitl/quickjs-singlefile-browser-release-sync": "npm:^0.31.0"
     "@jitl/quickjs-wasmfile-debug-sync": "npm:^0.31.0"
+    "@rollup/browser": "npm:^4.26.0"
     "@rollup/plugin-commonjs": "npm:^28.0.1"
     "@rollup/plugin-inject": "npm:^5.0.5"
     "@rollup/plugin-json": "npm:^6.1.0"

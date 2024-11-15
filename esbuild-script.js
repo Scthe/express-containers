@@ -2,7 +2,7 @@ const esbuild = require('esbuild');
 const copyStaticFiles = require('esbuild-copy-static-files');
 
 const config = {
-  entryPoints: ['./src/index.ts'],
+  entryPoints: ['./src/app/index.web.ts'],
   outdir: './build',
   bundle: true,
   define: {},

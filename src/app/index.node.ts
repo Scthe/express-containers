@@ -53,7 +53,6 @@ async function initFileSystem() {
   await copyStdLibStatic('_monkey_patch.js', MONKEY_PATCH_SCRIPT_FILE);
   await copyStdLibStatic('fs.js');
   await copyStdLibStatic('net.js');
-  // await copyStdLibStatic('buffer.js');
 
   vfsDebugTree(vfs);
   return vfs;

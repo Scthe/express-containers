@@ -16,7 +16,7 @@
     "serve": "http-server build",
     "clean": "rimraf ./build/* || true",
     "run:gen:fs-zip": "node scripts/gen-init-fs-zip.mjs",
-    "run:bundler": "tsx src/bundler-wasm/index.ts",
+    "run:bundler": "tsx src/bundler-wasm/index.node.ts",
     "run:app": "tsx src/app/index.node.ts",
     "run:node": "yarn run:gen:fs-zip && yarn run:bundler && yarn run:app",
     "_UNUSED_build:bundler": "rollup -c packages/bundler/rollup.config.mjs",
@@ -28,12 +28,18 @@
       "types": "@jitl/quickjs-wasmfile-release-sync",
       "browser": "@jitl/quickjs-singlefile-browser-release-asyncify",
       "default": "@jitl/quickjs-wasmfile-release-sync"
+    },
+    "#my-rollup": {
+      "types": "rollup",
+      "browser": "@rollup/browser",
+      "default": "rollup"
     }
   },
   "dependencies": {
     "@jitl/quickjs-singlefile-browser-release-asyncify": "^0.31.0",
     "@jitl/quickjs-singlefile-browser-release-sync": "^0.31.0",
     "@jitl/quickjs-wasmfile-debug-sync": "^0.31.0",
+    "@rollup/browser": "^4.26.0",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-inject": "^5.0.5",
     "@rollup/plugin-json": "^6.1.0",

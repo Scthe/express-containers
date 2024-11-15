@@ -1,6 +1,6 @@
 import { ensurePrefix, ensureSuffix, removeSuffix, replaceSuffix } from 'utils';
-import { join } from 'path';
-import { InputPluginOption } from 'rollup';
+import { join } from 'pathe';
+import type { InputPluginOption } from 'rollup';
 import { getFileContent, VirtualFS } from 'virtual-fs';
 
 const NODE_STD_LIB = '$__node-std-lib';
