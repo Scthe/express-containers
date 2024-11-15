@@ -1,30 +1,25 @@
-import {
-  createVirtualFileSystem,
-  loadVirtualFileSystem_zip,
-  writeStaticFile,
-} from 'virtual-fs/loaders';
+import { loadVirtualFileSystem_zip } from 'virtual-fs/loaders';
 import {
   createBundleOutput,
   buildBundle,
   generateCodeString,
 } from 'bundler-wasm/bundle';
-import { vfsDebugTree, writeFile } from 'virtual-fs';
-import { QuickJSContext } from 'quickjs-emscripten';
-import { createQuickJsVm } from './quick-js';
+import { VirtualFS, writeFile } from 'virtual-fs';
+import { QuickJsVm } from './quick-js';
 import {
   quickJSContext_getExtras,
   quickJSContext_Dispose,
-  MONKEY_PATCH_SCRIPT_FILE,
 } from './quick-js/context';
 import { executeScriptFile } from './quick-js/exec_script_file';
+import { initFileSystemForCodeExec, sendFakeRequest } from './app';
 
 const VFS_FILENAME = 'vfs.zip';
-const OUTPUT_PATH = 'static/bundled-express.js';
 
 globalThis.process = {
   cwd: () => '',
 };
 
+// install URL override for rollup wasm file
 const ROLLUP_WASM_FILE = 'bindings_wasm_bg.wasm';
 const orgURL = URL;
 globalThis.URL = function () {
@@ -40,21 +35,41 @@ globalThis.URL = function () {
   return new orgURL(...args);
 };
 
-export async function main(outputFile: string) {
+export async function main() {
+  // load initial filesystem
   console.log(`Loading virtual file system from '${VFS_FILENAME}'..`);
-  const vfs0 = await loadVirtualFileSystem_zip(VFS_FILENAME);
+  const vfs = await loadVirtualFileSystem_zip(VFS_FILENAME);
   // vfsDebugTree(vfs);
 
-  console.log('Running rollup to unify the code (handle CommonJS)..');
-  const bundleOutputOpts = createBundleOutput(outputFile);
-  const bundle = await buildBundle(vfs0, bundleOutputOpts);
-  const code = await generateCodeString(bundle, bundleOutputOpts);
+  // init vm
+  const quickJsVm = await QuickJsVm.create();
 
   ////////////////////////////////////////////
-  const vfs1 = await initFileSystem();
-  writeFile(vfs1, 'index.js', code);
+  const code = await bundle(vfs);
+  const runningServerVmContext = await execBundledCode(quickJsVm, code);
 
-  const quickJsVm = await createQuickJsVm();
+  sendFakeRequest(runningServerVmContext.context, 3000);
+
+  await runningServerVmContext.cleanup();
+  ////////////////////////////////////////////
+
+  quickJsVm.shutdown();
+  console.log('--- DONE ---');
+}
+
+main();
+
+async function bundle(vfs: VirtualFS): Promise<string> {
+  console.log('Running rollup to unify the code (handle CommonJS)..');
+  const outputFile = 'bundled-express.js'; // not used
+  const bundleOutputOpts = createBundleOutput(outputFile);
+  const bundle = await buildBundle(vfs, bundleOutputOpts);
+  return generateCodeString(bundle, bundleOutputOpts);
+}
+
+async function execBundledCode(quickJsVm: QuickJsVm, code: string) {
+  const vfs1 = await initFileSystemForCodeExec();
+  writeFile(vfs1, 'index.js', code);
   quickJsVm.mountFileSystem(vfs1);
   const context = await quickJsVm.createContext();
 
@@ -62,46 +77,14 @@ export async function main(outputFile: string) {
   console.log('\n--- Starting the app ---');
   const drainEventLoop = await executeScriptFile(context, vfs1, 'index.js');
 
-  sendFakeRequest(context, 3000);
+  const cleanup = async () => {
+    quickJSContext_getExtras(context).eventLoop.sigKill();
+    await drainEventLoop();
 
-  quickJSContext_getExtras(context).eventLoop.sigKill();
-  await drainEventLoop();
-
-  // cleanup
-  console.log('Script finished. Disposing of the references');
-  quickJSContext_Dispose(context);
-  quickJsVm.shutdown();
-  console.log('--- DONE ---');
-}
-
-main(OUTPUT_PATH);
-
-// TODO duplicated from node
-async function initFileSystem() {
-  const vfs = createVirtualFileSystem();
-
-  const copyStdLibStatic = (path: string, virtualPath?: string) => {
-    return writeStaticFile(
-      vfs,
-      `node-std-lib-static/${path}`,
-      virtualPath || path
-    );
+    // cleanup
+    console.log('Script finished. Disposing of the references');
+    quickJSContext_Dispose(context);
   };
 
-  await copyStdLibStatic('_monkey_patch.js', MONKEY_PATCH_SCRIPT_FILE);
-  await copyStdLibStatic('fs.js');
-  await copyStdLibStatic('net.js');
-
-  vfsDebugTree(vfs);
-  return vfs;
-}
-
-function sendFakeRequest(context: QuickJSContext, port: number) {
-  // TODO service worker to intercept?
-  const { eventLoop, requestInterceptor } = quickJSContext_getExtras(context);
-
-  const interceptOk = requestInterceptor.tryIntercept(port);
-  if (!interceptOk) {
-    console.error(`Not intercepted port ${port}, would have send real request`);
-  }
+  return { context, cleanup };
 }

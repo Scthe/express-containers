@@ -8,16 +8,21 @@ import { VirtualFS } from 'virtual-fs';
 import { moduleLoader, moduleNormalizer } from './module_loader2';
 import { createDisposables } from 'utils/disposables';
 
-class QuickJsVm {
+export class QuickJsVm {
   private readonly runtime: QuickJSAsyncRuntime;
   private readonly disposables = createDisposables();
   private vfs: VirtualFS | undefined = undefined;
 
-  constructor(private readonly QuickJS: QuickJSAsyncWASMModule) {
+  private constructor(private readonly QuickJS: QuickJSAsyncWASMModule) {
     this.runtime = QuickJS.newRuntime();
     this.disposables.push('QuickJS_runtime', this.runtime);
 
     this.runtime.setModuleLoader(moduleLoader, moduleNormalizer);
+  }
+
+  static async create() {
+    const QuickJS = await initQuickJs();
+    return new QuickJsVm(QuickJS);
   }
 
   shutdown() {
@@ -38,8 +43,3 @@ class QuickJsVm {
     });
   }
 }
-
-export const createQuickJsVm = async () => {
-  const QuickJS = await initQuickJs();
-  return new QuickJsVm(QuickJS);
-};
