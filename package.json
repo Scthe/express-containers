@@ -30,7 +30,7 @@
       "default": "@jitl/quickjs-wasmfile-release-sync"
     },
     "#my-rollup": {
-      "types": "rollup",
+      "types": "rollup/dist/rollup.d.ts",
       "browser": "@rollup/browser",
       "default": "rollup"
     }

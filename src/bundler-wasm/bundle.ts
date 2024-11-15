@@ -7,6 +7,7 @@ import { VirtualFS } from 'virtual-fs/types';
 // import json from '@rollup/plugin-json';
 import commonjs from './commonjs/src/index';
 import json from './json/json-plugin';
+import { RollupBuild } from 'rollup';
 
 // TODO [IGNORE] uninstall original plugins?
 
@@ -20,7 +21,10 @@ export const createBundleOutput = (outputPath: string): OutputOptions => ({
   },
 });
 
-export async function buildBundle(vfs: VirtualFS, output: OutputOptions) {
+export async function buildBundle(
+  vfs: VirtualFS,
+  output: OutputOptions
+): Promise<RollupBuild> {
   return rollup({
     input: 'index.js',
     external: ['fs', 'tts', 'net'],
@@ -34,6 +38,14 @@ export async function buildBundle(vfs: VirtualFS, output: OutputOptions) {
       json() as any,
     ],
   });
+}
+
+export async function generateCodeString(
+  bundle: RollupBuild,
+  bundleOutputOpts: OutputOptions
+) {
+  const { output } = await bundle.generate(bundleOutputOpts);
+  return output[0].code;
 }
 
 /*

@@ -1,6 +1,22 @@
-import { loadVirtualFileSystem_zip } from 'virtual-fs/loaders';
-import { createBundleOutput, buildBundle } from 'bundler-wasm/bundle';
-import { vfsDebugTree } from 'virtual-fs';
+import {
+  createVirtualFileSystem,
+  loadVirtualFileSystem_zip,
+  writeStaticFile,
+} from 'virtual-fs/loaders';
+import {
+  createBundleOutput,
+  buildBundle,
+  generateCodeString,
+} from 'bundler-wasm/bundle';
+import { vfsDebugTree, writeFile } from 'virtual-fs';
+import { QuickJSContext } from 'quickjs-emscripten';
+import { createQuickJsVm } from './quick-js';
+import {
+  quickJSContext_getExtras,
+  quickJSContext_Dispose,
+  MONKEY_PATCH_SCRIPT_FILE,
+} from './quick-js/context';
+import { executeScriptFile } from './quick-js/exec_script_file';
 
 const VFS_FILENAME = 'vfs.zip';
 const OUTPUT_PATH = 'static/bundled-express.js';
@@ -26,59 +42,66 @@ globalThis.URL = function () {
 
 export async function main(outputFile: string) {
   console.log(`Loading virtual file system from '${VFS_FILENAME}'..`);
-  const vfs = await loadVirtualFileSystem_zip(VFS_FILENAME);
+  const vfs0 = await loadVirtualFileSystem_zip(VFS_FILENAME);
   // vfsDebugTree(vfs);
 
   console.log('Running rollup to unify the code (handle CommonJS)..');
   const bundleOutputOpts = createBundleOutput(outputFile);
-  const bundle = await buildBundle(vfs, bundleOutputOpts);
-  const { output } = await bundle.generate(bundleOutputOpts);
+  const bundle = await buildBundle(vfs0, bundleOutputOpts);
+  const code = await generateCodeString(bundle, bundleOutputOpts);
 
-  for (const chunkOrAsset of output) {
-    if (chunkOrAsset.type === 'asset') {
-      // For assets, this contains
-      // {
-      //   fileName: string,              // the asset file name
-      //   source: string | Uint8Array    // the asset source
-      //   type: 'asset'                  // signifies that this is an asset
-      // }
-      console.log('Asset', chunkOrAsset);
-    } else {
-      // For chunks, this contains
-      // {
-      //   code: string,                  // the generated JS code
-      //   dynamicImports: string[],      // external modules imported dynamically by the chunk
-      //   exports: string[],             // exported variable names
-      //   facadeModuleId: string | null, // the id of a module that this chunk corresponds to
-      //   fileName: string,              // the chunk file name
-      //   implicitlyLoadedBefore: string[]; // entries that should only be loaded after this chunk
-      //   imports: string[],             // external modules imported statically by the chunk
-      //   importedBindings: {[imported: string]: string[]} // imported bindings per dependency
-      //   isDynamicEntry: boolean,       // is this chunk a dynamic entry point
-      //   isEntry: boolean,              // is this chunk a static entry point
-      //   isImplicitEntry: boolean,      // should this chunk only be loaded after other chunks
-      //   map: string | null,            // sourcemaps if present
-      //   modules: {                     // information about the modules in this chunk
-      //     [id: string]: {
-      //       renderedExports: string[]; // exported variable names that were included
-      //       removedExports: string[];  // exported variable names that were removed
-      //       renderedLength: number;    // the length of the remaining code in this module
-      //       originalLength: number;    // the original length of the code in this module
-      //       code: string | null;       // remaining code in this module
-      //     };
-      //   },
-      //   name: string                   // the name of this chunk as used in naming patterns
-      //   preliminaryFileName: string    // the preliminary file name of this chunk with hash placeholders
-      //   referencedFiles: string[]      // files referenced via import.meta.ROLLUP_FILE_URL_<id>
-      //   type: 'chunk',                 // signifies that this is a chunk
-      // }
-      console.log('------ Result chunk ------');
-      console.log('Chunk', chunkOrAsset.modules);
-      console.log('------ Result code ------');
-      // console.log(chunkOrAsset.code);
-      console.log(chunkOrAsset);
-    }
-  }
+  ////////////////////////////////////////////
+  const vfs1 = await initFileSystem();
+  writeFile(vfs1, 'index.js', code);
+
+  const quickJsVm = await createQuickJsVm();
+  quickJsVm.mountFileSystem(vfs1);
+  const context = await quickJsVm.createContext();
+
+  // run the script
+  console.log('\n--- Starting the app ---');
+  const drainEventLoop = await executeScriptFile(context, vfs1, 'index.js');
+
+  sendFakeRequest(context, 3000);
+
+  quickJSContext_getExtras(context).eventLoop.sigKill();
+  await drainEventLoop();
+
+  // cleanup
+  console.log('Script finished. Disposing of the references');
+  quickJSContext_Dispose(context);
+  quickJsVm.shutdown();
+  console.log('--- DONE ---');
 }
 
 main(OUTPUT_PATH);
+
+// TODO duplicated from node
+async function initFileSystem() {
+  const vfs = createVirtualFileSystem();
+
+  const copyStdLibStatic = (path: string, virtualPath?: string) => {
+    return writeStaticFile(
+      vfs,
+      `node-std-lib-static/${path}`,
+      virtualPath || path
+    );
+  };
+
+  await copyStdLibStatic('_monkey_patch.js', MONKEY_PATCH_SCRIPT_FILE);
+  await copyStdLibStatic('fs.js');
+  await copyStdLibStatic('net.js');
+
+  vfsDebugTree(vfs);
+  return vfs;
+}
+
+function sendFakeRequest(context: QuickJSContext, port: number) {
+  // TODO service worker to intercept?
+  const { eventLoop, requestInterceptor } = quickJSContext_getExtras(context);
+
+  const interceptOk = requestInterceptor.tryIntercept(port);
+  if (!interceptOk) {
+    console.error(`Not intercepted port ${port}, would have send real request`);
+  }
+}
