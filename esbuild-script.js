@@ -1,8 +1,9 @@
 const esbuild = require('esbuild');
 const copyStaticFiles = require('esbuild-copy-static-files');
+const postCssPlugin = require('esbuild-style-plugin');
 
 const config = {
-  entryPoints: ['./src/app/index.web.ts'],
+  entryPoints: ['./src/app/index.web.tsx'],
   outdir: './build',
   bundle: true,
   define: {},
@@ -14,6 +15,11 @@ const config = {
       dereference: true,
       errorOnExist: false,
       recursive: true,
+    }),
+    postCssPlugin({
+      postcss: {
+        plugins: [require('tailwindcss'), require('autoprefixer')],
+      },
     }),
   ],
 };

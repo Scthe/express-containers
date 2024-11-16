@@ -17,28 +17,29 @@ const SEP = '/';
 const splitPath = (path: Path): string[] =>
   Array.isArray(path) ? path : path.split(SEP);
 
-const joinPath = (path: Path): string =>
+export const joinPath = (path: Path): string =>
   Array.isArray(path) ? path.join(SEP) : path;
 
 const parsePath = (path: Path): [string[], string] => {
-  const dir0 = splitPath(path);
-  const dir: string[] = [];
-  for (let d of dir0) {
-    if (d === '.') {
+  const dirParts = splitPath(path);
+  const result: string[] = [];
+
+  for (const part of dirParts) {
+    if (part === '.') {
       continue;
-    } else if (d === '..') {
-      dir.pop();
+    } else if (part === '..') {
+      result.pop();
     } else {
-      dir.push(d);
+      result.push(part);
     }
   }
 
-  const fileName = dir.pop()!;
+  const fileName = result.pop()!;
   // console.log({ path, dir, fileName });
-  return [dir, fileName];
+  return [result, fileName];
 };
 
-export const mkdirp = (vfs: VirtualFS, path: Path): DirNode => {
+const mkdirp = (vfs: VirtualFS, path: Path): DirNode => {
   const dirs = splitPath(path);
   let curDir = { type: 'directory', files: vfs.files } satisfies DirNode;
 
@@ -77,7 +78,7 @@ export const getDirent = (
 
   for (const subdir of dirs) {
     if (subdir === '.') continue;
-    let childDir = curDir.files[subdir];
+    const childDir = curDir.files[subdir];
     if (!childDir || childDir.type !== 'directory') return err('e-no-entry');
     curDir = childDir;
   }
@@ -98,17 +99,20 @@ export const getFileContent = (
 };
 
 export const vfsDebugTree = (vfs: VirtualFS) => {
-  console.log(`Virtual file system`); // (basePath '${vfs.basePath}')
+  // eslint-disable-next-line no-console
+  const log = (...args: unknown[]) => console.log(...args);
+
+  log(`Virtual file system`); // (basePath '${vfs.basePath}')
 
   const printDirent = (fileName: string, entry: FileDirent, depth: number) => {
     const ws = ' '.repeat(depth * 2) + '| ';
     if (depth == 3) return;
 
     if (entry.type === 'file') {
-      console.log(ws + fileName);
+      log(ws + fileName);
     } else {
       if (fileName.length) {
-        console.log(ws + fileName + '/');
+        log(ws + fileName + '/');
       }
       Object.keys(entry.files).forEach((k) => {
         const child = entry.files[k];

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { QuickJsVm } from './quick-js';
 import {
   quickJSContext_Dispose,
@@ -6,7 +7,7 @@ import {
 import 'utils/static_files.node';
 import { writeStaticFile } from 'virtual-fs';
 import { executeScriptFile } from './quick-js/exec_script_file';
-import { initFileSystemForCodeExec, sendFakeRequest } from './app';
+import { initFileSystemForCodeExec, sendFakeRequest } from './utils';
 
 main();
 

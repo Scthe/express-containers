@@ -7,6 +7,8 @@ declare global {
 
 export const IS_NODE = typeof window === 'undefined';
 
+export type WithClassName = { className?: string };
+
 export const isProductionBuild = () => IS_NODE || Boolean(IS_PRODUCTION);
 
 export type ArrayElement<ArrayType extends readonly unknown[]> =
@@ -22,6 +24,7 @@ export const withLimitedStackTrace = <T>(fn: () => T) => {
     return fn(); // can throw on error!
   } catch (e) {
     if (e && typeof e === 'object' && 'message' in e) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       throw new Error(e.message as any);
     }
     throw e;
@@ -51,3 +54,33 @@ export const createArray = (len: number) =>
   Array(len)
     .fill(0)
     .map((_, i) => i);
+
+/** Same as `Object.keys()`, but preserves key type if record used */
+export function typesafeObjectKeys<T extends string | number | symbol>(
+  obj: Record<T, unknown>
+): T[] {
+  const result = Object.keys(obj);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return result as any;
+}
+
+export const delay = (timeMs = 1500): Promise<undefined> =>
+  new Promise((res, _rej) => {
+    setTimeout(res, timeMs);
+  });
+
+export const stringify = (a: unknown): string => {
+  if (a === null) return 'null';
+  if (Array.isArray(a)) return `[${a.map((e) => stringify(e)).join(', ')}]`;
+
+  switch (typeof a) {
+    case 'undefined':
+      return 'undefined';
+    case 'function':
+      return String(a);
+    case 'object':
+      return JSON.stringify(a); // TODO handle loops
+    default:
+      return String(a);
+  }
+};

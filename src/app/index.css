@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  @apply bg-page;
+  @apply text-content;
+}
+
+@layer base {
+  *:focus,
+  *:active {
+    @apply outline-none !important;
+  }
+
+  /* default styling for browser-handled focus */
+  *:focus-visible {
+    @apply ring-2;
+    @apply ring-focused;
+  }
+}
+
+@layer utilities {
+}

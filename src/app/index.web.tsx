@@ -1,4 +1,9 @@
-import { loadVirtualFileSystem_zip } from 'virtual-fs/loaders';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import {
+  createVirtualFileSystem,
+  loadVirtualFileSystem_zip,
+} from 'virtual-fs/loaders';
 import {
   createBundleOutput,
   buildBundle,
@@ -11,29 +16,24 @@ import {
   quickJSContext_Dispose,
 } from './quick-js/context';
 import { executeScriptFile } from './quick-js/exec_script_file';
-import { initFileSystemForCodeExec, sendFakeRequest } from './app';
+import { initFileSystemForCodeExec, sendFakeRequest } from './utils';
+import { isProductionBuild } from 'utils';
+import { App } from './app';
+import './index.css';
+import './web/hacks';
 
-const VFS_FILENAME = 'vfs.zip';
+// const VFS_FILENAME = 'vfs.zip';
+const VFS_FILENAME = 'vfs-test.zip';
 
-globalThis.process = {
-  cwd: () => '',
-};
-
-// install URL override for rollup wasm file
-const ROLLUP_WASM_FILE = 'bindings_wasm_bg.wasm';
-const orgURL = URL;
-globalThis.URL = function () {
-  const args = Array.from(arguments);
-  // console.log('URL', arguments);
-  if (args[0] === ROLLUP_WASM_FILE) {
-    const url = new orgURL('bindings_wasm_bg.wasm', window.location.href);
-    // console.log(url);
-    // console.log(typeof url.href);
-    // return url.href;
-    return new Request(url.href);
+(function () {
+  if (!isProductionBuild()) {
+    // eslint-disable-next-line no-console
+    console.log('Starting esbuild live reload');
+    new EventSource('/esbuild').addEventListener('change', () =>
+      location.reload()
+    );
   }
-  return new orgURL(...args);
-};
+})();
 
 export async function main() {
   // load initial filesystem
@@ -41,6 +41,19 @@ export async function main() {
   const vfs = await loadVirtualFileSystem_zip(VFS_FILENAME);
   // vfsDebugTree(vfs);
 
+  // const vfs = createVirtualFileSystem();
+  // writeFile(vfs, 'a.txt', 'Hello a.txt');
+  // writeFile(vfs, 'subdir/b.txt', 'Hello b.txt');
+  // vfs.enableListeners = true;
+
+  const root = ReactDOM.createRoot(document.getElementById('root')!);
+  root.render(
+    <React.StrictMode>
+      <App vfs={vfs} />
+    </React.StrictMode>
+  );
+
+  /*
   // init vm
   const quickJsVm = await QuickJsVm.create();
 
@@ -55,6 +68,7 @@ export async function main() {
 
   quickJsVm.shutdown();
   console.log('--- DONE ---');
+  */
 }
 
 main();
