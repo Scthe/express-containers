@@ -1,4 +1,4 @@
-import { QuickJSAsyncContext, QuickJSContext } from 'quickjs-emscripten';
+import { QuickJSContext } from 'quickjs-emscripten';
 import { withLimitedStackTrace } from 'utils';
 import { VirtualFS, getFileContent } from 'virtual-fs';
 import { quickJSContext_getExtras } from './context';
@@ -32,7 +32,9 @@ export const executeScriptFile = async (
   // });
   context.runtime.executePendingJobs();
   const result2 = context.unwrapResult(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     context.getPromiseState(resultHandle) as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) as any;
   result2.dispose();
   // console.log(result2.consume(context.dump));

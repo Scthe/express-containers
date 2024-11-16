@@ -35,6 +35,7 @@ export async function buildBundle(
         sourceMap: false,
         // transformMixedEsModules: true,
       }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       json() as any,
     ],
   });

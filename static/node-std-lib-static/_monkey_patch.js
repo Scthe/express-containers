@@ -4,7 +4,7 @@ globalThis.process = (function () {
   p.cwd = () => '';
   // https://nodejs.org/api/process.html#processenv
   p.env = {
-    DEBUG: '*',
+    DEBUG: '*', // express uses 'debug' lib. Print everything
   };
   p.browser = true;
   return p;

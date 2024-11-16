@@ -36,6 +36,7 @@ export async function createQuickJSContext(
 
   // add extra data
   const eventLoop = new EventLoop();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (context as any).__myExtras = {
     ...extras,
     eventLoop,
@@ -58,6 +59,7 @@ export async function createQuickJSContext(
 
 export const quickJSContext_getExtras = (
   context: QuickJSAsyncContext | QuickJSContext
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): ContextExtras => (context as any).__myExtras;
 
 export const quickJSContext_Dispose = (

@@ -9,7 +9,7 @@ export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
   return {
     name: 'loader',
     resolveId(source: string, importer: string | undefined) {
-      const orgSource = source;
+      // const orgSource = source;
       if (importer && source.startsWith('.')) {
         source = join(removeSuffix(importer, '.js'), '..', source);
         source = source.endsWith('.json')
@@ -55,7 +55,7 @@ export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
       // return source;
     },
     load(id: string) {
-      const idRaw = id;
+      // const idRaw = id;
       // if (id === 'index.js?commonjs-entry') return null;
 
       if (id.includes('?') || id[0] === '\0') {
@@ -101,8 +101,8 @@ export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
 };
 
 const getPackageJsonMain = (vfs: VirtualFS, modulePath: string): string[] => {
-  const f = `${modulePath}/package.json`;
-  let maybeText = getFileContent(vfs, f);
+  const packageJsonPath = `${modulePath}/package.json`;
+  const maybeText = getFileContent(vfs, packageJsonPath);
   if (maybeText.status !== 'ok') {
     // console.log(`Dir '${f}': ${maybeText.status}`);
     return [];
@@ -131,7 +131,7 @@ const resolveDirectoryImport = <T>(
   ];
 
   let result = undefined;
-  for (let candidate of resolveOrder) {
+  for (const candidate of resolveOrder) {
     // [load] Check [error] '$__node-std-lib/node_modules/body-parser/lib/read.js/.js'
     let path = `${dir}/${candidate}`;
     path = replaceSuffix(path, '/.js', '.js');

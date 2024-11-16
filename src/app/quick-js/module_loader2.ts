@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { join, dirname } from 'pathe';
 import { JSModuleLoader, JSModuleNormalizer } from 'quickjs-emscripten';
 import { quickJSContext_getExtras } from './context';
@@ -27,7 +28,7 @@ export const moduleLoader: JSModuleLoader = (moduleName, ctx) => {
   console.log(`[moduleLoader] '${moduleName}'`);
   const { vfs } = quickJSContext_getExtras(ctx);
 
-  let scriptText = getRelativeFile(vfs, moduleName);
+  const scriptText = getRelativeFile(vfs, moduleName);
   if (scriptText) return scriptText;
 
   throw new Error(`Could not import/require script '${moduleName}'. File not found.`); // prettier-ignore
@@ -35,7 +36,7 @@ export const moduleLoader: JSModuleLoader = (moduleName, ctx) => {
 
 function getRelativeFile(vfs: VirtualFS, filePath: string): string | undefined {
   // console.log(`test '${filePath}'`);
-  let scriptText = getFileContent(vfs, filePath);
+  const scriptText = getFileContent(vfs, filePath);
   if (scriptText.status === 'ok') return scriptText.content;
 
   // Try with '.js' extension

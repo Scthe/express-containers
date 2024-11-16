@@ -19,11 +19,11 @@ export const moduleLoader: JSModuleLoader = (moduleName, ctx) => {
   const asNodeStrLib = tryGetAsNodeStdLib(moduleName);
   if (asNodeStrLib) return asNodeStrLib;
 
-  let name = moduleName.startsWith('.')
+  const name = moduleName.startsWith('.')
     ? moduleName
     : 'node_modules/' + moduleName;
 
-  let scriptText = getRelativeFile(vfs, name);
+  const scriptText = getRelativeFile(vfs, name);
   if (scriptText) return scriptText;
 
   // try as dir

@@ -22,14 +22,19 @@ export function createDisposables(): DisposablesList {
       if (!namedDisposable.alive) return;
       namedDisposable.alive = false;
 
-      if (DEBUG) console.log(`[Disposing] ${namedDisposable.name}`);
+      if (DEBUG) {
+        console.log(`[Disposing] ${namedDisposable.name}`);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (namedDisposable.disposable as any).dispose();
     }
   };
 
   return {
     push: (name: string, disposable: WithDispose) => {
-      if (DEBUG) console.log(`[New disposable] ${name}`);
+      if (DEBUG) {
+        console.log(`[New disposable] ${name}`);
+      }
       items.push({ name, disposable, alive: true });
     },
     [Symbol.dispose]: dispose,

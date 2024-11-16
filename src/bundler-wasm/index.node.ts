@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { promises as fs } from 'fs';
 import { loadVirtualFileSystem_zip } from 'virtual-fs/loaders';
 import { buildBundle, createBundleOutput } from './bundle';

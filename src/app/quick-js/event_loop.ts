@@ -100,6 +100,7 @@ export class EventLoop {
 
     this.timeoutIds.push(timeoutId);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return timeoutId as any;
   };
 
