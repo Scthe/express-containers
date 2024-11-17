@@ -1,6 +1,6 @@
-import { finished } from 'stream';
 import Request from './http_request';
 import Response from './http_response';
+import { createServer } from './createServer';
 import * as url from 'url';
 
 export function request(params, cb) {
@@ -145,69 +145,4 @@ export const STATUS_CODES = {
 };
 
 export class IncomingMessage {}
-export { Response as ServerResponse };
-
-globalThis.__portListeners = (() => {
-  const data = {};
-  return {
-    add: (port, expressApp) => {
-      data[port] = expressApp;
-    },
-    invoke: (port) => {
-      console.log('Call express app from port', port);
-      const expressApp = data[port];
-      if (!expressApp) return;
-
-      const fakeXhr = {
-        open: () => {},
-        onerror: () => {},
-        onreadystatechange: () => {},
-        __fakeXhr: true,
-      };
-
-      const host = 'localhost';
-      const path = '';
-      const fakeReq = new Request(fakeXhr, {
-        url: `http://${host}:${port}/${path}`,
-        host,
-        port,
-        path: '/' + path,
-        method: 'GET',
-        headers: {},
-        // extra mocks
-        listeners: () => [],
-        resume: () => {},
-        finished: true, // finished streaming request, can respond now
-        __fakeRequest: true,
-      });
-      const fakeResp = new Response('__fakeResponse: true');
-      expressApp(fakeReq, fakeResp);
-
-      console.log('Express response:', {
-        keys: Object.keys(fakeResp),
-        statusCode: fakeResp.statusCode,
-        data: fakeResp.data,
-        _headers: fakeResp._headers,
-      });
-    },
-  };
-})();
-
-// TODO separate file
-export function createServer(expressApp, ...args) {
-  console.log('fake-http createServer()', expressApp);
-  return {
-    // listen: (server, callback, ...args) => {
-    listen: (port, afterInitCb) => {
-      console.log(`fake-http server.listen(port=${port})`);
-      // console.log(this); // ignore
-      // console.log(0, port);
-      // console.log(1, callback);
-      __platform_registerPortListener(port);
-      globalThis.__portListeners.add(port, expressApp);
-
-      //
-      afterInitCb();
-    },
-  };
-}
+export { Response as ServerResponse, createServer };
