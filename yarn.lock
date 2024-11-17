@@ -1271,6 +1271,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"clsx@npm:^2.1.0":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: 10c0/c4c8eb865f8c82baab07e71bfa8897c73454881c4f99d6bc81585aecd7c441746c1399d08363dc096c550cceaf97bd4ce1e8854e1771e9998d9f94c4fe075839
+  languageName: node
+  linkType: hard
+
 "color-convert@npm:^2.0.1":
   version: 2.0.1
   resolution: "color-convert@npm:2.0.1"
@@ -1926,6 +1933,58 @@ __metadata:
   checksum: 10c0/160456d2d647e6019640bd07111634d8c353038d9fa40176afb7cd49b0548bdae83b56d05e907c2cce2300b81cae35d800ef92fefb9d0208e190fa3b7d6bb579
   languageName: node
   linkType: hard
+
+"express-containers@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "express-containers@workspace:."
+  dependencies:
+    "@jitl/quickjs-singlefile-browser-release-asyncify": "npm:^0.31.0"
+    "@jitl/quickjs-singlefile-browser-release-sync": "npm:^0.31.0"
+    "@jitl/quickjs-wasmfile-debug-sync": "npm:^0.31.0"
+    "@rollup/browser": "npm:^4.26.0"
+    "@rollup/plugin-commonjs": "npm:^28.0.1"
+    "@rollup/plugin-inject": "npm:^5.0.5"
+    "@rollup/plugin-json": "npm:^6.1.0"
+    "@rollup/plugin-node-resolve": "npm:^15.3.0"
+    "@rollup/plugin-typescript": "npm:^12.1.1"
+    "@types/is-arguments": "npm:^1"
+    "@types/is-generator-function": "npm:^1"
+    "@types/node": "npm:^22.9.0"
+    "@types/prismjs": "npm:^1"
+    "@types/prop-types": "npm:^15"
+    "@types/react": "npm:^18"
+    "@types/react-dom": "npm:^18"
+    "@typescript-eslint/eslint-plugin": "npm:^8.12.1"
+    "@typescript-eslint/parser": "npm:^8.12.1"
+    autoprefixer: "npm:^10.4.20"
+    classnames: "npm:^2.5.1"
+    esbuild: "npm:^0.24.0"
+    esbuild-copy-static-files: "npm:^0.1.0"
+    esbuild-style-plugin: "npm:^1.6.3"
+    eslint: "npm:^8.57.1"
+    eslint-plugin-react: "npm:^7.37.2"
+    eslint-plugin-react-hooks: "npm:^5.0.0"
+    jszip: "npm:^3.10.1"
+    pathe: "npm:^1.1.2"
+    postcss: "npm:^8.4.49"
+    prismjs: "npm:^1.29.0"
+    prop-types: "npm:^15.8.1"
+    quickjs-emscripten: "npm:^0.31.0"
+    react: "npm:^18.3.1"
+    react-accessible-treeview: "npm:^2.10.0"
+    react-dom: "npm:^18.3.1"
+    react-icons: "npm:^5.3.0"
+    react-resizable-panels: "npm:^2.1.6"
+    react-simple-code-editor: "npm:^0.14.1"
+    react-toastify: "npm:^10.0.6"
+    rimraf: "npm:^5.0.7"
+    rollup: "npm:^4.24.4"
+    rollup-plugin-polyfill-node: "npm:^0.13.0"
+    tailwindcss: "npm:^3.4.15"
+    typescript: "npm:^5.4.5"
+    use-debounce: "npm:^10.0.4"
+  languageName: unknown
+  linkType: soft
 
 "fast-deep-equal@npm:^3.1.1, fast-deep-equal@npm:^3.1.3":
   version: 3.1.3
@@ -2746,57 +2805,6 @@ __metadata:
   checksum: 10c0/05b9ed58cd30d0c3ccd3c98209339e74f50abd9a17e716f65db46b6a35812103f6bde6e134be7124d01745586bca8cc5dae1d0d952267c3ebe55171949c32e56
   languageName: node
   linkType: hard
-
-"js-os-wasm@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "js-os-wasm@workspace:."
-  dependencies:
-    "@jitl/quickjs-singlefile-browser-release-asyncify": "npm:^0.31.0"
-    "@jitl/quickjs-singlefile-browser-release-sync": "npm:^0.31.0"
-    "@jitl/quickjs-wasmfile-debug-sync": "npm:^0.31.0"
-    "@rollup/browser": "npm:^4.26.0"
-    "@rollup/plugin-commonjs": "npm:^28.0.1"
-    "@rollup/plugin-inject": "npm:^5.0.5"
-    "@rollup/plugin-json": "npm:^6.1.0"
-    "@rollup/plugin-node-resolve": "npm:^15.3.0"
-    "@rollup/plugin-typescript": "npm:^12.1.1"
-    "@types/is-arguments": "npm:^1"
-    "@types/is-generator-function": "npm:^1"
-    "@types/node": "npm:^22.9.0"
-    "@types/prismjs": "npm:^1"
-    "@types/prop-types": "npm:^15"
-    "@types/react": "npm:^18"
-    "@types/react-dom": "npm:^18"
-    "@typescript-eslint/eslint-plugin": "npm:^8.12.1"
-    "@typescript-eslint/parser": "npm:^8.12.1"
-    autoprefixer: "npm:^10.4.20"
-    classnames: "npm:^2.5.1"
-    esbuild: "npm:^0.24.0"
-    esbuild-copy-static-files: "npm:^0.1.0"
-    esbuild-style-plugin: "npm:^1.6.3"
-    eslint: "npm:^8.57.1"
-    eslint-plugin-react: "npm:^7.37.2"
-    eslint-plugin-react-hooks: "npm:^5.0.0"
-    jszip: "npm:^3.10.1"
-    pathe: "npm:^1.1.2"
-    postcss: "npm:^8.4.49"
-    prismjs: "npm:^1.29.0"
-    prop-types: "npm:^15.8.1"
-    quickjs-emscripten: "npm:^0.31.0"
-    react: "npm:^18.3.1"
-    react-accessible-treeview: "npm:^2.10.0"
-    react-dom: "npm:^18.3.1"
-    react-icons: "npm:^5.3.0"
-    react-resizable-panels: "npm:^2.1.6"
-    react-simple-code-editor: "npm:^0.14.1"
-    rimraf: "npm:^5.0.7"
-    rollup: "npm:^4.24.4"
-    rollup-plugin-polyfill-node: "npm:^0.13.0"
-    tailwindcss: "npm:^3.4.15"
-    typescript: "npm:^5.4.5"
-    use-debounce: "npm:^10.0.4"
-  languageName: unknown
-  linkType: soft
 
 "js-tokens@npm:^3.0.0 || ^4.0.0":
   version: 4.0.0
@@ -3744,6 +3752,18 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
   checksum: 10c0/63264fce03315c80de4fc65b9e0a30b359cb0a6c269a90ad67ccff36c21d0f3ba1f9ac9bdfbe76477fc9a6d7033182debc64a58345f4914f0bc0b416eb686e61
+  languageName: node
+  linkType: hard
+
+"react-toastify@npm:^10.0.6":
+  version: 10.0.6
+  resolution: "react-toastify@npm:10.0.6"
+  dependencies:
+    clsx: "npm:^2.1.0"
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 10c0/4042b716d008295d0feab32488d1e88ec655a1b7a9176fa7d253c70387578a8a0c04aca0ff86d20e1722f3b4baadae8970f50f462940d67a90453c307dd350a9
   languageName: node
   linkType: hard
 

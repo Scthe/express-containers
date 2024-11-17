@@ -8,17 +8,17 @@ let NEXT_PERPETUAL_ID = 1;
  * it to execute. E.g. `setTimeout()`'s callback:
  *
  * 1. QuickJS VM executes `setTimeout()` instruction.
- * 2. Browser VM schedules `setTimeout()` on it's own event loop.
+ * 2. Host schedules `setTimeout()` on it's own event loop.
  * 3. QuickJS VM finishes it script. It does not know about
- *    Browser VM event loop, so thinks it's done.
+ *    Host event loop, so thinks it's done.
  * 4. QuickJS VM closes down. It complains about not disposed stuff
  *    related to `setTimeout()`.
- * 5. Browser VM executes `setTimeout()` callback and calls
+ * 5. Host executes `setTimeout()` callback and calls
  *    `quickJS_Context.callFunction()` after QuickJS VM tried to close.
  *
- * Solution: hold QuickJS VM pending Browser VM's event loop.
+ * Solution: hold QuickJS VM pending Host's event loop.
  *
- * TODO use `executePendingJobs()` with promises instead.
+ * TODO [IGNORE] use `executePendingJobs()` with promises instead.
  */
 export class EventLoop {
   private timeoutIds: TimerId[] = [];
@@ -48,13 +48,14 @@ export class EventLoop {
   };
 
   sigKill = () => {
-    console.log(`--- EVENT LOOP: SIG_KILL --- `);
+    // eslint-disable-next-line no-console
+    console.log(`--- EVENT LOOP: SIGKILL --- `);
     this.timeoutIds.forEach((tId) => this.markTimerDone('timeout', tId));
     this.intervalIds.forEach((tId) => this.markTimerDone('interval', tId));
     this.perpetualsIds = [];
 
     if (!this.isDone()) {
-      throw new Error('EventLoop.sigKill() should have finished all outstanding tasks'); // prettier-ignore
+      throw new Error('EventLoop.sigkill() should have finished all outstanding tasks'); // prettier-ignore
     }
     this.resolveIfIsDone();
   };

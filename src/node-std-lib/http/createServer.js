@@ -60,18 +60,6 @@ function handleRequest(expressApp, port, pathname) {
 
   const host = 'localhost';
   pathname = pathname.startsWith('/') ? pathname.substring(1) : pathname;
-  // const path = 'user/my-user-id';
-  // const path = 'hello?param0=1&param2';
-  // TODO /user/:id
-  // TODO query params
-  // TODO endpoint for 500
-
-  // http://localhost:3000/?param0=1&param2
-  // url: '/?param0=1&param2',
-  // baseUrl: '',
-  // originalUrl: '/?param0=1&param2',
-  // params: {},
-  // query: { param0: '1', param2: '' },
 
   const fakeReq = new Request(fakeXhr, {
     url: `http://${host}:${port}/${pathname}`,

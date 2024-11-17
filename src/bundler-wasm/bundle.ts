@@ -9,8 +9,6 @@ import commonjs from './commonjs/src/index';
 import json from './json/json-plugin';
 import { RollupBuild } from 'rollup';
 
-// TODO [IGNORE] uninstall original plugins?
-
 export const createBundleOutput = (outputPath: string): OutputOptions => ({
   name: 'myApp',
   file: outputPath,

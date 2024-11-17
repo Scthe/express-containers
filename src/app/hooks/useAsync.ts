@@ -20,5 +20,9 @@ export default function useAsync<T>(fnAsync: () => Promise<T>) {
     }
   }, [fnAsync]);
 
-  return { state, execute };
+  const reset = useCallback(async () => {
+    setState({ type: 'initial' });
+  }, []);
+
+  return { state, execute, reset };
 }

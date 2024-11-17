@@ -15,9 +15,10 @@ import {
 } from './components/header';
 import { useShownFileSystem } from './model/useShownFileSystem';
 import { QuickJsVm } from './quick-js';
+import { GitHubBtn } from './components/githubButton';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
-// TODO less awkward title
-// TODO gh icon
 // TODO when creating bundled FS, copy all that is not 'node_modules'. It might contain view templates etc.
 
 interface Props {
@@ -29,21 +30,25 @@ interface Props {
 export function App({ vfs, quickJsVm }: Props) {
   const containerState = useContainerState(quickJsVm, vfs);
 
-  // TODO provide bundled fs
-  const shownFileSystem = useShownFileSystem(vfs, undefined);
-
-  // TODO 'index.js'
-  const [selectedFile, setSelectedFile] = useSelectedFile(
+  const shownFileSystem = useShownFileSystem(
     vfs,
-    'rollup.config.mjs'
+    containerState.bundledVirtualFs
+  );
+
+  const [selectedFile, setSelectedFile] = useSelectedFile(
+    shownFileSystem.fileSystem,
+    'index.js'
   );
 
   return (
     <main className="w-full h-full font-mono min-h-svh">
       <PanelGroup direction="horizontal" className="p-2 min-h-svh">
         <Panel maxSize={20} minSize={10} className="flex flex-col min-h-full ">
-          <div className="z-10 p-2 mb-2 mr-2 bg-panel rounded-panel">
-            <h1 className="text-xl text-center">Express in browser</h1>
+          <div className="z-10 px-4 py-2 mb-2 mr-2 bg-panel rounded-panel">
+            <div className="flex justify-between">
+              <h1 className="mr-2 text-xl text-center">Express containers</h1>
+              <GitHubBtn />
+            </div>
           </div>
 
           <div className="relative flex flex-col bg-panel panel-activable grow rounded-l-panel">
@@ -78,7 +83,11 @@ export function App({ vfs, quickJsVm }: Props) {
           <div className="flex flex-col h-full max-h-svh">
             <HeaderTextEditor filepath={selectedFile} />
             <div className="h-0 overflow-y-auto grow">
-              <TextEditor key={selectedFile} vfs={vfs} path={selectedFile} />
+              <TextEditor
+                key={selectedFile}
+                vfs={shownFileSystem.fileSystem}
+                path={selectedFile}
+              />
             </div>
           </div>
         </Panel>
@@ -102,6 +111,19 @@ export function App({ vfs, quickJsVm }: Props) {
 
         <PanelResizeHandle />
       </PanelGroup>
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={2000}
+        limit={1}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+      />
     </main>
   );
 }

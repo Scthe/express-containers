@@ -4,7 +4,7 @@ import {
   ConsoleInterceptorParams,
   ConsoleLevel,
 } from 'app/web/hacks';
-import React, { Fragment, memo, useRef } from 'react';
+import React, { Fragment, memo, useCallback, useRef } from 'react';
 import { useEffect, useState } from 'react';
 import cx from 'classnames';
 import { stringify } from 'utils';
@@ -22,20 +22,25 @@ interface LogLine {
 const MAX_ENTRIES = 1000;
 let NEXT_LOG_LINE_ID = 1;
 
-// TODO add 'clear' button
-// TODO add 'autoscroll' checkbox
 export function LogsPanel() {
   const [logLines, setLogLines] = useState<LogLine[]>([]);
-  const [scrollToBottom, setScrollToBottom] = useState(true); // TODO use
+  const [isAutoScroll, setAutoScroll] = useState(true);
   const listElRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
     const listener = ({ level, args }: ConsoleInterceptorParams) => {
-      const isVm = JSON.stringify(args[0]).includes(QUICK_JS_CONSOLE_TAG);
+      let origin: LogOrigin = 'host';
+      if (typeof args[0] === 'string') {
+        if (args[0].includes(QUICK_JS_CONSOLE_TAG)) {
+          origin = 'vm';
+        }
+        args[0] = args[0].replace(QUICK_JS_CONSOLE_TAG, '');
+      }
+
       const newLogLine: LogLine = {
         id: NEXT_LOG_LINE_ID++,
         level,
-        origin: isVm ? 'vm' : 'host',
+        origin,
         args,
       };
       setLogLines((lines) => {
@@ -58,18 +63,26 @@ export function LogsPanel() {
 
   useEffect(() => {
     const el = listElRef.current;
-    if (el && scrollToBottom) {
+    if (el && isAutoScroll) {
       el.scrollIntoView({
         behavior: 'smooth',
         block: 'end',
         inline: 'nearest',
       });
     }
-  }, [logLines, scrollToBottom]);
+  }, [logLines, isAutoScroll]);
+
+  const clearLogs = useCallback(() => {
+    setLogLines([]);
+  }, []);
 
   return (
     <Fragment>
-      <HeaderLogs />
+      <HeaderLogs
+        isAutoScroll={isAutoScroll}
+        setAutoScroll={setAutoScroll}
+        clearLogs={clearLogs}
+      />
 
       <ol className="h-0 px-2 pb-2 overflow-y-auto grow">
         {logLines.map((line) => (

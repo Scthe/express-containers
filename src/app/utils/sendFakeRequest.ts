@@ -2,13 +2,17 @@ import { QuickJSContext } from 'quickjs-emscripten';
 import { quickJSContext_getExtras } from '../quick-js/context';
 import { withLimitedStackTrace } from 'utils';
 
-// TODO service worker to intercept?
+// TODO [NOW] service worker to intercept?
 const VM_GLOBAL_REQUEST_HANDLER = '__portListeners';
 
 export type InterceptedFetchResponse = {
   statusCode: number;
   headers: Record<string, string>;
   data: unknown;
+  request: {
+    port: string;
+    pathname: string;
+  };
 };
 
 export function sendFakeRequest(context: QuickJSContext, pathname: string) {
@@ -27,7 +31,7 @@ function forwardRequestToVM(
   context: QuickJSContext,
   port: number,
   pathname: string
-) {
+): InterceptedFetchResponse {
   // eslint-disable-next-line no-console
   console.log(`forwardRequestToVM (port='${port}', pathname='${pathname}')`);
   const portListeners = context.getProp(
@@ -60,5 +64,8 @@ function forwardRequestToVM(
   console.log(resp);
   resultHandle.dispose();
 
-  return resp as InterceptedFetchResponse;
+  return {
+    ...resp,
+    request: { port, pathname },
+  } as InterceptedFetchResponse;
 }

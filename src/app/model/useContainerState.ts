@@ -3,6 +3,8 @@ import { useCallback, useState } from 'react';
 import { VirtualFS } from 'virtual-fs';
 import { RuninngServerState, useStartServer, useStopServer } from './utils';
 import { sendFakeRequest } from 'app/utils/sendFakeRequest';
+import { toast } from 'react-toastify';
+import { quickJSContext_getExtras } from 'app/quick-js/context';
 
 export type ContainerStateEnum =
   | 'running'
@@ -24,18 +26,24 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
   const stopServerImpl = useStopServer();
 
   const startServer = useCallback(async () => {
-    stopServerImpl(serverState);
+    await stopServerImpl(serverState);
     if (state !== 'stopped') return;
 
+    // eslint-disable-next-line no-console
+    console.log(`Starting Express server..`);
     setState('starting-up');
     try {
-      // await delay(); // await startServer();
       const newServerState = await startServerImpl();
+
       setServerState(newServerState);
       setState('running');
+
+      const port = getExpressPort(newServerState);
+      toast.success(`Express is running on port ${port}.`);
     } catch (e) {
       setState('stopped');
       stopServerImpl(serverState);
+      toast.error(`Could not start Express. Check logs.`);
       throw e;
     }
   }, [serverState, startServerImpl, state, stopServerImpl]);
@@ -43,13 +51,17 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
   const stopServer = useCallback(async () => {
     if (state !== 'running') return;
 
+    // eslint-disable-next-line no-console
+    console.log(`Shutting down the Express server..`);
     setState('shutting-down');
+
     try {
-      // await delay(); //await stopServer();
       await stopServerImpl(serverState);
       setState('stopped');
+      toast.success(`The Express is down`);
     } catch (e) {
       setState('running');
+      toast.error(`Could not stop Express. Check logs.`);
       throw e;
     }
   }, [serverState, state, stopServerImpl]);
@@ -70,5 +82,15 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
     startServer,
     stopServer,
     sendFakeRequest: sendFakeRequestCb,
+    bundledVirtualFs: serverState?.bundledVfs,
+    expressPort: getExpressPort(serverState),
   };
+}
+
+function getExpressPort(s: RuninngServerState | undefined) {
+  let port: number | undefined = undefined;
+  if (s) {
+    port = quickJSContext_getExtras(s.context)?.serverPort;
+  }
+  return port || 3000;
 }

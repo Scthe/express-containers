@@ -42,7 +42,7 @@ export async function createQuickJSContext(
   } satisfies ContextExtras;
 
   // init context globals
-  // TODO https://github.com/wasmerio/spiderfire/tree/ee79bb8d82c12ee83d12a9f851656ba135f4223e/runtime/src/globals
+  // https://github.com/wasmerio/spiderfire/tree/ee79bb8d82c12ee83d12a9f851656ba135f4223e/runtime/src/globals
   injectVM_Console(context, disposables);
   injectVM_Timer(context, eventLoop);
   injectVM_serverListener(context);

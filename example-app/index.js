@@ -1,17 +1,22 @@
 const express = require('express');
 
 /*
-This a  simple express app, like seen on
+This a  simple Express app, just like the one seen in
 https://expressjs.com/en/starter/hello-world.html.
 
 Feel free to edit this file. Or any other.
 
-In case of problems, just refresh the page.
+In case of problems, just refresh the page. Ever wondered
+what happens if you 'accidentally' delete *content*
+of 'node_modules/express/lib/application.js'?
 */
 
 const app = express();
+const port = 3000; // edit me!
+
+// Add static files. Access index.html on:
+// http://localhost:3000/
 app.use(express.static('public'));
-const port = 3000;
 
 // http://localhost:3000/hello?param0=1&param2
 app.get('/hello', (req, res) => {

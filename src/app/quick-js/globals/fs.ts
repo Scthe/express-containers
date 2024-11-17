@@ -9,7 +9,7 @@ const VM_CALLBACK_NAMES = {
 };
 
 export function injectVM_fs(context: QuickJSContext, vfs: VirtualFS) {
-  // TODO memory leak
+  // TODO [CRITICAL] memory leak
   // To handle requests we have to allocate memory for file stats.
   // Can be deallocated once response was send.
   // ATM. this is not handled, we deallocate on context shutdown.

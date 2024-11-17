@@ -19,8 +19,8 @@ interface Props {
 - https://github.com/react-simple-code-editor/react-simple-code-editor
 - https://github.com/Scthe/ai-prompt-editor/blob/master/src/components/promptInput/promptInput.css
 
-TODO how to indicate focus? Change text color? Add left/right border?
-TODO opening binary files is permitted, but hangs.. User should just reload the page..
+TODO [IGNORE] how to indicate focus? Change text color? Add left/right border?
+TODO [IGNORE] opening binary files is permitted, but hangs.. User should just reload the page..
 */
 export function TextEditor({ path, vfs }: Props) {
   const initText = useMemo(() => {

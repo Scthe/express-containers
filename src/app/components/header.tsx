@@ -3,6 +3,7 @@ import { HelpButton, HelpParagraph } from './helpButton';
 import { Toggle } from './toggle';
 import { ShownFileSystem } from 'app/model/useShownFileSystem';
 import { LogOriginBadge } from './logsPanel';
+import { Button } from './button';
 
 const TitleRow = (props: PropsWithChildren & { title: string }) => {
   return (
@@ -89,9 +90,9 @@ export const HeaderOutput = () => {
             or the HTML template.
           </HelpParagraph>
           <HelpParagraph>
-            When the server is running, press the &quot;Fetch from the
-            server&quot; button to execute a sample request. You can also try
-            endpoints that return responses with status codes 404 or 500.
+            When the server is running, press the &quot;Fetch()&quot; button to
+            execute a sample request. You can also try endpoints that return
+            responses with status codes 404 or 500.
           </HelpParagraph>
         </HelpButton>
       </TitleRow>
@@ -99,31 +100,51 @@ export const HeaderOutput = () => {
   );
 };
 
-export const HeaderLogs = () => {
+export const HeaderLogs = (props: {
+  isAutoScroll: boolean;
+  setAutoScroll: (b: boolean) => void;
+  clearLogs: () => void;
+}) => {
   return (
     <Header>
       <TitleRow title="Logs">
-        <HelpButton id="help-logs" dialogLabel="Logs">
-          <HelpParagraph>
-            Logs from both the host and the server. Uses overridden
-            console.log() internally. Expect spam.
-          </HelpParagraph>
-          <HelpParagraph>
-            <LogOriginBadge origin="host" /> are messages originating from your
-            browser. Usually UI-related.
-          </HelpParagraph>
-          <HelpParagraph>
-            <LogOriginBadge origin="vm" /> are messages originating from
-            QuickJS. It&apos;s the JavaScript engine that executes the code for
-            the Express server.
-          </HelpParagraph>
-          <HelpParagraph>
-            <LogOriginBadge origin="service_worker" /> are messages from the
-            service worker that intercepts all network connections. Requests to
-            the Express server are redirected into QuickJS, rest are left
-            untouched.
-          </HelpParagraph>
-        </HelpButton>
+        <div className="flex gap-2">
+          <Toggle
+            small
+            checked={props.isAutoScroll}
+            id="logs-autoscroll"
+            onChecked={props.setAutoScroll}
+            srLabel="Autoscroll"
+          >
+            <span className="inline-block ml-2">Autoscr.</span>
+          </Toggle>
+
+          <Button small onClick={props.clearLogs} danger>
+            Clear
+          </Button>
+
+          <HelpButton id="help-logs" dialogLabel="Logs">
+            <HelpParagraph>
+              Logs from both the host and the server. Uses overridden
+              console.log() internally. Expect spam.
+            </HelpParagraph>
+            <HelpParagraph>
+              <LogOriginBadge origin="host" /> are messages originating from
+              your browser. Usually UI-related.
+            </HelpParagraph>
+            <HelpParagraph>
+              <LogOriginBadge origin="vm" /> are messages originating from
+              QuickJS. It&apos;s the JavaScript engine that executes the code
+              for the Express server.
+            </HelpParagraph>
+            <HelpParagraph>
+              <LogOriginBadge origin="service_worker" /> are messages from the
+              service worker that intercepts all network connections. Requests
+              to the Express server are redirected into QuickJS, rest are left
+              untouched.
+            </HelpParagraph>
+          </HelpButton>
+        </div>
       </TitleRow>
     </Header>
   );

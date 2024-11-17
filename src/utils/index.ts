@@ -79,8 +79,27 @@ export const stringify = (a: unknown): string => {
     case 'function':
       return String(a);
     case 'object':
-      return JSON.stringify(a); // TODO handle loops
+      return safeJsonStringify(a);
     default:
       return String(a);
   }
 };
+
+/** https://github.com/Scthe/ai-prompt-editor/blob/master/src/utils/index.ts#L50 */
+export function safeJsonStringify(data: unknown, space?: number): string {
+  const seen: unknown[] = [];
+
+  return JSON.stringify(
+    data,
+    function (_key, val) {
+      if (val != null && typeof val == 'object') {
+        if (seen.indexOf(val) >= 0) {
+          return '<cyclic>';
+        }
+        seen.push(val);
+      }
+      return val;
+    },
+    space
+  );
+}

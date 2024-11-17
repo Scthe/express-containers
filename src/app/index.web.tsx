@@ -21,6 +21,7 @@ const VFS_FILENAME = 'vfs.zip';
 
 export async function main() {
   // load initial filesystem
+  // eslint-disable-next-line no-console
   console.log(`Loading virtual file system from '${VFS_FILENAME}'..`);
   const vfs = await loadVirtualFileSystem_zip(VFS_FILENAME);
   // vfsDebugTree(vfs);
