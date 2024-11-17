@@ -3,6 +3,8 @@ import { registerGlobalFn } from '../utils';
 import { quickJSContext_getExtras } from '../context';
 import { withLimitedStackTrace } from 'utils';
 
+const VM_CALLBACK_NAME = '__platform_registerPortListener';
+
 export type RequestInterceptor = ReturnType<typeof createRequestInterceptor>;
 
 export const createRequestInterceptor = (context: QuickJSContext) => {
@@ -21,7 +23,7 @@ export const createRequestInterceptor = (context: QuickJSContext) => {
 export function injectVM_requestIntercepter(context: QuickJSContext) {
   const { eventLoop, requestInterceptor } = quickJSContext_getExtras(context);
 
-  registerGlobalFn(context, '__platform_registerPortListener', (portHandle) => {
+  registerGlobalFn(context, VM_CALLBACK_NAME, (portHandle) => {
     const port = context.dump(portHandle);
     console.log(`Host: adding interceptor for port ${port}`);
     requestInterceptor.addInterceptor(port);

@@ -29,6 +29,7 @@ export const moduleLoader: JSModuleLoader = (moduleName, ctx) => {
   const { vfs } = quickJSContext_getExtras(ctx);
 
   const scriptText = getRelativeFile(vfs, moduleName);
+  // console.log(scriptText);
   if (scriptText) return scriptText;
 
   throw new Error(`Could not import/require script '${moduleName}'. File not found.`); // prettier-ignore

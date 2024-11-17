@@ -5,7 +5,7 @@ import {
   quickJSContext_getExtras,
 } from './quick-js/context';
 import 'utils/static_files.node';
-import { writeStaticFile } from 'virtual-fs';
+import { writeFile, writeStaticFile } from 'virtual-fs';
 import { executeScriptFile } from './quick-js/exec_script_file';
 import { initFileSystemForCodeExec, sendFakeRequest } from './utils';
 
@@ -14,6 +14,7 @@ main();
 export async function main() {
   const vfs = await initFileSystemForCodeExec();
   await writeStaticFile(vfs, 'bundled-express.js', 'index.js');
+  writeFile(vfs, 'public/index.html', 'This is a mock index.html for node');
 
   const quickJsVm = await QuickJsVm.create();
   quickJsVm.mountFileSystem(vfs);

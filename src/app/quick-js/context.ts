@@ -14,6 +14,7 @@ import {
   injectVM_requestIntercepter,
   RequestInterceptor,
 } from './globals/requestIntercept';
+import { injectVM_fs } from './globals/fs';
 
 interface ContextExtras {
   vfs: VirtualFS;
@@ -49,8 +50,7 @@ export async function createQuickJSContext(
   injectVM_Console(context, disposables);
   injectVM_Timer(context, eventLoop);
   injectVM_requestIntercepter(context);
-  // injectVM_Require(context, disposables);
-  // injectVM_Process(context, disposables);
+  injectVM_fs(context, extras.vfs);
 
   await executeScriptFile(context, extras.vfs, MONKEY_PATCH_SCRIPT_FILE);
 
