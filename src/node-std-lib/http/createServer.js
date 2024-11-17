@@ -8,12 +8,17 @@ globalThis.__portListeners = (() => {
     add: (port, expressApp) => {
       data[port] = expressApp;
     },
-    invoke: (port) => {
-      console.log('Call express app from port', port);
+    invoke: (port, pathname) => {
+      console.log(
+        `Express app request (port='${port}', pathname='${pathname}')`
+      );
       const expressApp = data[port];
-      if (!expressApp) return;
+      if (!expressApp) {
+        console.error(`No express apps running on port=${port}?`);
+        return;
+      }
 
-      const resp = handleRequest(expressApp, port);
+      const resp = handleRequest(expressApp, port, pathname);
 
       console.log('Express response:', {
         keys: Object.keys(resp),
@@ -40,9 +45,7 @@ export function createServer(expressApp, ...args) {
   };
 }
 
-function handleRequest(expressApp, reqData) {
-  const port = reqData;
-
+function handleRequest(expressApp, port, pathname) {
   const fakeXhr = {
     open: () => {},
     onerror: () => {},
@@ -51,12 +54,25 @@ function handleRequest(expressApp, reqData) {
   };
 
   const host = 'localhost';
-  const path = '';
+  pathname = pathname.startsWith('/') ? pathname.substring(1) : pathname;
+  // const path = 'user/my-user-id';
+  // const path = 'hello?param0=1&param2';
+  // TODO /user/:id
+  // TODO query params
+  // TODO endpoint for 500
+
+  // http://localhost:3000/?param0=1&param2
+  // url: '/?param0=1&param2',
+  // baseUrl: '',
+  // originalUrl: '/?param0=1&param2',
+  // params: {},
+  // query: { param0: '1', param2: '' },
+
   const fakeReq = new Request(fakeXhr, {
-    url: `http://${host}:${port}/${path}`,
+    url: `http://${host}:${port}/${pathname}`,
     host,
     port,
-    path: '/' + path,
+    path: '/' + pathname,
     method: 'GET',
     headers: {},
     // extra mocks

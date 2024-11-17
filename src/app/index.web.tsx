@@ -16,7 +16,8 @@ import {
   quickJSContext_Dispose,
 } from './quick-js/context';
 import { executeScriptFile } from './quick-js/exec_script_file';
-import { initFileSystemForCodeExec, sendFakeRequest } from './utils';
+import { initFileSystemForCodeExec } from './utils';
+import { sendFakeRequest } from './utils/sendFakeRequest';
 import { isProductionBuild } from 'utils';
 import { App } from './app';
 import './index.css';
