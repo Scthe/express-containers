@@ -1,12 +1,14 @@
 import { Disposable } from 'quickjs-emscripten';
 
-type WithDispose = Omit<Disposable, 'alive'>;
+/** like original 'Disposable', but '.alive' is optional */
+type WithDispose = Omit<Disposable, 'alive'> &
+  Partial<Pick<Disposable, 'alive'>>;
 
 export type DisposablesList = WithDispose & {
   push: (name: string, disposable: Disposable | DisposablesList) => void;
 };
 
-const DEBUG = false;
+const DEBUG = true;
 
 interface NamedDisposable {
   name: string;
@@ -19,12 +21,13 @@ export function createDisposables(): DisposablesList {
 
   const dispose = () => {
     for (const namedDisposable of items.reverse()) {
-      if (!namedDisposable.alive) return;
+      if (!namedDisposable.alive || !namedDisposable.disposable.alive) {
+        namedDisposable.alive = false;
+        return;
+      }
       namedDisposable.alive = false;
 
-      if (DEBUG) {
-        console.log(`[Disposing] ${namedDisposable.name}`);
-      }
+      logDisposable(`[Disposing] ${namedDisposable.name}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (namedDisposable.disposable as any).dispose();
     }
@@ -32,12 +35,17 @@ export function createDisposables(): DisposablesList {
 
   return {
     push: (name: string, disposable: WithDispose) => {
-      if (DEBUG) {
-        console.log(`[New disposable] ${name}`);
-      }
+      logDisposable(`[New disposable] ${name}`);
       items.push({ name, disposable, alive: true });
     },
     [Symbol.dispose]: dispose,
     dispose: dispose,
   };
+}
+
+function logDisposable(...args: unknown[]) {
+  if (DEBUG) {
+    // eslint-disable-next-line no-console
+    console.log(...args);
+  }
 }

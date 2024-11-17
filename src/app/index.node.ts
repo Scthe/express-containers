@@ -10,11 +10,11 @@ import { executeScriptFile } from './quick-js/exec_script_file';
 import { initFileSystemForCodeExec } from './utils';
 import { sendFakeRequest } from './utils/sendFakeRequest';
 
-// const REQUEST_PATHNAME = 'hello?param0=1&param2';
+const REQUEST_PATHNAME = 'hello?param0=1&param2';
 // const REQUEST_PATHNAME = '';
 // const REQUEST_PATHNAME = 'user/my-user-id';
 // const REQUEST_PATHNAME = 'error-500';
-const REQUEST_PATHNAME = 'gimme-404';
+// const REQUEST_PATHNAME = 'gimme-404';
 
 main(REQUEST_PATHNAME);
 

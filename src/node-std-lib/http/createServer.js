@@ -20,12 +20,17 @@ globalThis.__portListeners = (() => {
 
       const resp = handleRequest(expressApp, port, pathname);
 
-      console.log('Express response:', {
-        keys: Object.keys(resp),
+      console.log('Will return response:', {
+        // keys: Object.keys(resp),
+        statusCode: resp.statusCode,
+        dataLen: String(resp?.data || '').length,
+        // _headers: resp._headers,
+      });
+      return {
         statusCode: resp.statusCode,
         data: resp.data,
-        _headers: resp._headers,
-      });
+        headers: resp._headers,
+      };
     },
   };
 })();

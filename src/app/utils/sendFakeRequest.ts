@@ -48,4 +48,8 @@ function forwardRequestToVM(
   const resultHandle = withLimitedStackTrace(
     () => result.unwrap() // can throw on error!
   );
+
+  console.log('--------- HOST RECEIVED RESPONSE --------');
+  console.log(context.dump(resultHandle));
+  resultHandle.dispose();
 }
