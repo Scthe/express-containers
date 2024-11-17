@@ -9,16 +9,19 @@ export type AsyncState<T> =
 export default function useAsync<T>(callback: () => Promise<T>) {
   const [state, setState] = useState<AsyncState<T>>({ type: 'initial' });
 
-  const execute = useCallback(async () => {
-    setState({ type: 'loading' });
+  const execute = useCallback(
+    async (pathname: string = '') => {
+      setState({ type: 'loading' });
 
-    try {
-      const value = await callback();
-      setState({ type: 'done', value });
-    } catch (error) {
-      setState({ type: 'error', error });
-    }
-  }, [callback]);
+      try {
+        const value = await callback();
+        setState({ type: 'done', value });
+      } catch (error) {
+        setState({ type: 'error', error });
+      }
+    },
+    [callback]
+  );
 
   return { state, execute };
 }

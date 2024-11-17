@@ -22,8 +22,7 @@ import { App } from './app';
 import './index.css';
 import './web/hacks';
 
-// const VFS_FILENAME = 'vfs.zip';
-const VFS_FILENAME = 'vfs-test.zip';
+const VFS_FILENAME = 'vfs.zip';
 
 (function () {
   if (!isProductionBuild()) {

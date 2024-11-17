@@ -35,8 +35,13 @@
     background: rgba(255, 255, 255, 0.2);
   }
 
+  /* default from lib */
   .directory .tree .tree-node--selected {
-    background: rgba(48, 107, 176);
+  }
+
+  .directory .tree .tree-node--selected_my {
+    @apply bg-accent-500/20;
+    @apply rounded-md;
   }
 
   .directory .tree-node__branch {

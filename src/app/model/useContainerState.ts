@@ -9,6 +9,8 @@ export type ContainerStateEnum =
 
 export type ContainerState = ReturnType<typeof useContainerState>;
 
+export type FakeRequestFn = ContainerState['sendFakeRequest'];
+
 export type InterceptedFetchResponse = {
   statusCode: number;
   headers: Record<string, string>;

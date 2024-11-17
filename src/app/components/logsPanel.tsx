@@ -4,19 +4,22 @@ import {
   ConsoleInterceptorParams,
   ConsoleLevel,
 } from 'app/web/hacks';
-import React, { memo, useRef } from 'react';
+import React, { Fragment, memo, useRef } from 'react';
 import { useEffect, useState } from 'react';
 import cx from 'classnames';
 import { stringify } from 'utils';
+import { HeaderLogs } from './header';
 
-const MAX_ENTRIES = 1000;
+type LogOrigin = 'host' | 'vm' | 'service_worker';
 
 interface LogLine {
   id: number;
   level: ConsoleLevel;
-  origin: 'host' | 'vm';
+  origin: LogOrigin;
   args: unknown[];
 }
+
+const MAX_ENTRIES = 1000;
 let NEXT_LOG_LINE_ID = 1;
 
 // TODO add 'clear' button
@@ -65,12 +68,16 @@ export function LogsPanel() {
   }, [logLines, scrollToBottom]);
 
   return (
-    <ol className="max-h-full overflow-y-auto font-mono">
-      {logLines.map((line) => (
-        <LogLineItem key={line.id} {...line} />
-      ))}
-      <li ref={listElRef} className="h-[0px] w-full"></li>
-    </ol>
+    <Fragment>
+      <HeaderLogs />
+
+      <ol className="h-0 px-2 pb-2 overflow-y-auto grow">
+        {logLines.map((line) => (
+          <LogLineItem key={line.id} {...line} />
+        ))}
+        <li ref={listElRef} className="h-[0px] w-full"></li>
+      </ol>
+    </Fragment>
   );
 }
 
@@ -78,13 +85,6 @@ const LogLineItem = memo(LogLineItem__);
 
 function LogLineItem__({ level, origin, args }: LogLine) {
   const msg = args.map((e) => stringify(e)).join(' ');
-
-  const originEl =
-    origin === 'host' ? (
-      <span className="bg-sky-800">&nbsp;HOST&nbsp;</span>
-    ) : (
-      <span className="bg-green-800">&nbsp;QUICK_JS&nbsp;</span>
-    );
 
   return (
     <li
@@ -94,8 +94,28 @@ function LogLineItem__({ level, origin, args }: LogLine) {
         level === 'warn' && 'bg-yellow-900/30'
       )}
     >
-      {originEl}
+      <LogOriginBadge origin={origin} />
       <span>{msg}</span>
     </li>
   );
 }
+
+export const LogOriginBadge = ({ origin }: { origin: LogOrigin }) => {
+  let text = 'host';
+  let className = 'bg-accent-800';
+
+  if (origin === 'vm') {
+    text = 'quick_js';
+    className = 'bg-pink-800';
+  }
+  if (origin === 'service_worker') {
+    text = 'service worker';
+    className = 'bg-sky-900';
+  }
+
+  return (
+    <span className={`rounded-sm uppercase ${className}`}>
+      &nbsp;{text}&nbsp;
+    </span>
+  );
+};

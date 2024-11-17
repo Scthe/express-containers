@@ -18,7 +18,19 @@
     @apply ring-2;
     @apply ring-focused;
   }
+
+  dialog[open]::backdrop {
+    @apply bg-black/50;
+  }
 }
 
 @layer utilities {
+  .panel-activable {
+    @apply border-2;
+    @apply border-transparent;
+    @apply transition;
+    &:hover {
+      @apply border-accent-500;
+    }
+  }
 }

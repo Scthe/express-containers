@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { VirtualFS } from 'virtual-fs';
 import { TreeFileList } from './components/treeFileList';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -7,43 +7,73 @@ import { LogsPanel } from './components/logsPanel';
 import { OutputPanel } from './components/outputPanel';
 import { useContainerState } from './model/useContainerState';
 import { useSelectedFile } from './model/useSelectedFile';
+import classNames from 'classnames';
+import {
+  HeaderFiles,
+  HeaderOutput,
+  HeaderTextEditor,
+} from './components/header';
+import { useShownFileSystem } from './model/useShownFileSystem';
 
-// TODO help button
-// TODO run button
 // TODO less awkward title
-// TODO files: switch between vfs and the bundle output
-// TODO file list - make scrollable
 // TODO gh icon
-// TODO glue file tree and editor together?
-// TODO when creating bundled FS, copy all that is not 'node_modules'. It might contain templates etc.
+// TODO when creating bundled FS, copy all that is not 'node_modules'. It might contain view templates etc.
 
 /** https://github.com/bvaughn/react-resizable-panels */
 export function App({ vfs }: { vfs: VirtualFS }) {
   const containerState = useContainerState();
-  const [selectedFile, setSelectedFile] = useSelectedFile(vfs, 'index.js');
+
+  // TODO provide bundled fs
+  const shownFileSystem = useShownFileSystem(vfs, undefined);
+
+  // TODO 'index.js'
+  const [selectedFile, setSelectedFile] = useSelectedFile(
+    vfs,
+    'rollup.config.mjs'
+  );
 
   return (
     <main className="w-full h-full font-mono min-h-svh">
-      <PanelGroup direction="horizontal" className="min-h-svh">
-        <Panel
-          maxSize={20}
-          minSize={10}
-          className="flex flex-col min-h-full pb-6 rounded-r-panel bg-panel"
-        >
-          <h1 className="p-2 text-xl text-center border-b-2 border-white/20">
-            Express in browser
-          </h1>
-          <h2 className="pl-3 mt-2 mb-2 text-xl">Files</h2>
-          <div className="h-0 overflow-y-auto grow">
-            <TreeFileList vfs={vfs} onFileSelected={setSelectedFile} />
+      <PanelGroup direction="horizontal" className="p-2 min-h-svh">
+        <Panel maxSize={20} minSize={10} className="flex flex-col min-h-full ">
+          <div className="z-10 p-2 mb-2 mr-2 bg-panel rounded-panel">
+            <h1 className="text-xl text-center">Express in browser</h1>
+          </div>
+
+          <div className="relative flex flex-col bg-panel panel-activable grow rounded-l-panel">
+            {/* smooth top-right corner */}
+            <div
+              className={classNames(
+                'absolute top-[-18px] right-[-2px] w-[16px] h-[16px] bg-panel',
+                'before:absolute before:top-0 before:right-0 before:w-full before:h-full before:bg-page before:rounded-br-panel'
+              )}
+            ></div>
+
+            <HeaderFiles
+              hasBundleFileSystem={shownFileSystem.hasBundleFileSystem}
+              shownFileSystem={shownFileSystem.shownFileSystem}
+              onFileSystemChange={shownFileSystem.setShownFileSystem}
+            />
+
+            <div className="h-0 pb-6 overflow-y-auto grow">
+              <TreeFileList
+                key={shownFileSystem.shownFileSystem}
+                vfs={shownFileSystem.fileSystem}
+                onFileSelected={setSelectedFile}
+                selectedFile={selectedFile}
+              />
+            </div>
           </div>
         </Panel>
 
-        <MyPanelResizeHandle />
+        <PanelResizeHandle className="" />
 
-        <Panel className="bg-panel rounded-panel">
-          <div className="overflow-y-auto max-h-svh">
-            <TextEditor key={selectedFile} vfs={vfs} path={selectedFile} />
+        <Panel className="bg-panel rounded-t-panel rounded-br-panel panel-activable ">
+          <div className="flex flex-col h-full max-h-svh">
+            <HeaderTextEditor filepath={selectedFile} />
+            <div className="h-0 overflow-y-auto grow">
+              <TextEditor key={selectedFile} vfs={vfs} path={selectedFile} />
+            </div>
           </div>
         </Panel>
 
@@ -51,11 +81,14 @@ export function App({ vfs }: { vfs: VirtualFS }) {
 
         <Panel>
           <PanelGroup direction="vertical">
-            <Panel className="bg-panel rounded-bl-panel">
+            <Panel className="flex flex-col bg-panel rounded-panel panel-activable">
+              <HeaderOutput />
               <OutputPanel containerState={containerState} />
             </Panel>
+
             <MyPanelResizeHandle vertical />
-            <Panel className="p-2 bg-panel rounded-tl-panel">
+
+            <Panel className="flex flex-col bg-panel rounded-panel panel-activable">
               <LogsPanel />
             </Panel>
           </PanelGroup>
@@ -70,20 +103,3 @@ export function App({ vfs }: { vfs: VirtualFS }) {
 const MyPanelResizeHandle = (props: { vertical?: boolean }) => (
   <PanelResizeHandle className={props.vertical ? 'h-2' : 'w-2'} />
 );
-
-function useGetStaticFile(path: string) {
-  const [text, setText] = useState('');
-
-  const downloadFile = useCallback(async () => {
-    console.log(`Downloading '${path}'`);
-    const resp = await fetch(path);
-    const text = await resp.text();
-    setText(text);
-  }, [path]);
-
-  useEffect(() => {
-    downloadFile();
-  }, [downloadFile]);
-
-  return text;
-}

@@ -39,6 +39,7 @@ const orgConsole = {
   warn: console.warn,
   error: console.error,
 };
+console.log('Installing console intercept..');
 typesafeObjectKeys(orgConsole).forEach((level) => {
   console[level] = (...args) => {
     orgConsole[level](...args);

@@ -3,6 +3,7 @@ import { Button } from './button';
 import LoaderOverlayContent from './loaders';
 import {
   ContainerState,
+  FakeRequestFn,
   InterceptedFetchResponse,
 } from 'app/model/useContainerState';
 import useAsync, { AsyncState } from 'app/hooks/useAsync';
@@ -25,10 +26,12 @@ export function OutputPanel({ containerState }: OutputPanelProps) {
 function ScreenWhenStopped(p: OutputPanelProps) {
   // TODO adjustable port?
   // TODO adjustable path?
+  // TODO 404
+  // TODO 500 - endpoint that throws
   const { state, startServer } = p.containerState;
 
   return (
-    <div className="relative flex flex-col items-center justify-center h-full">
+    <div className="relative flex flex-col items-center justify-center grow">
       <LoaderOverlayContent visible={state === 'starting-up'} />
       <Button disabled={state === 'starting-up'} onClick={startServer}>
         Start the server
@@ -40,10 +43,8 @@ function ScreenWhenStopped(p: OutputPanelProps) {
 function ScreenWhenRunning(p: OutputPanelProps) {
   const { state, stopServer, sendFakeRequest } = p.containerState;
 
-  const fetchState = useAsync(useCallback(sendFakeRequest, [sendFakeRequest]));
-
   return (
-    <div className="relative max-h-full min-h-full overflow-y-auto">
+    <div className="relative h-0 overflow-y-auto grow">
       <LoaderOverlayContent visible={state === 'shutting-down'} />
 
       {/* Cannot make sticky cause panel resize goes wonky */}
@@ -57,25 +58,63 @@ function ScreenWhenRunning(p: OutputPanelProps) {
         </Button>
       </div>
 
-      <div className="px-2 mb-4">
-        <h3 className="mb-2 text-2xl">Fetch</h3>
+      {/* TODO tabs */}
+      <FetchSection
+        title="Fetch"
+        buttonText="Fetch from the server"
+        pathname=""
+        sendFakeRequest={sendFakeRequest}
+      />
 
-        <div className="pl-5">
-          <Button small className="mb-3" onClick={fetchState.execute}>
-            Fetch from the server
-          </Button>
+      <FetchSection
+        title="Fetch 404"
+        buttonText="Fetch nonexisting endpoint"
+        pathname="endpoint-404"
+        sendFakeRequest={sendFakeRequest}
+      />
 
-          {fetchState.state.type !== 'initial' ? (
-            <FakeFetchResponse {...fetchState} />
-          ) : null}
-        </div>
-      </div>
+      <FetchSection
+        title="Fetch 500"
+        buttonText="Fetch with internal error"
+        pathname="endpoint-500"
+        sendFakeRequest={sendFakeRequest}
+      />
 
       {/*  TODO implement iframe 
       <div>
         <h3>Iframe</h3>
       </div>
         */}
+    </div>
+  );
+}
+
+function FetchSection(props: {
+  title: string;
+  buttonText: string;
+  pathname: string;
+  sendFakeRequest: FakeRequestFn;
+}) {
+  const { sendFakeRequest } = props;
+  const fetchState = useAsync(useCallback(sendFakeRequest, [sendFakeRequest]));
+
+  return (
+    <div className="px-2 mb-4">
+      <h3 className="mb-2 text-lg">{props.title}</h3>
+
+      <div className="pl-5">
+        <Button
+          small
+          className="mb-3"
+          onClick={() => fetchState.execute(props.pathname)}
+        >
+          {props.buttonText}
+        </Button>
+
+        {fetchState.state.type !== 'initial' ? (
+          <FakeFetchResponse {...fetchState} />
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -17,8 +17,10 @@ const SEP = '/';
 const splitPath = (path: Path): string[] =>
   Array.isArray(path) ? path : path.split(SEP);
 
-export const joinPath = (path: Path): string =>
-  Array.isArray(path) ? path.join(SEP) : path;
+export const joinPath = (path: Path): string => {
+  if (!Array.isArray(path)) return path;
+  return path.filter((e) => e.length > 0).join(SEP);
+};
 
 const parsePath = (path: Path): [string[], string] => {
   const dirParts = splitPath(path);
