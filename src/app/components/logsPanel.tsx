@@ -106,11 +106,11 @@ export const LogOriginBadge = ({ origin }: { origin: LogOrigin }) => {
 
   if (origin === 'vm') {
     text = 'quick_js';
-    className = 'bg-pink-800';
+    className = 'bg-fuchsia-800';
   }
   if (origin === 'service_worker') {
     text = 'service worker';
-    className = 'bg-sky-900';
+    className = 'bg-amber-800';
   }
 
   return (

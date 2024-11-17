@@ -1,5 +1,8 @@
+import { QuickJsVm } from 'app/quick-js';
 import { useCallback, useState } from 'react';
-import { delay } from 'utils';
+import { VirtualFS } from 'virtual-fs';
+import { RuninngServerState, useStartServer, useStopServer } from './utils';
+import { sendFakeRequest } from 'app/utils/sendFakeRequest';
 
 export type ContainerStateEnum =
   | 'running'
@@ -11,54 +14,61 @@ export type ContainerState = ReturnType<typeof useContainerState>;
 
 export type FakeRequestFn = ContainerState['sendFakeRequest'];
 
-export type InterceptedFetchResponse = {
-  statusCode: number;
-  headers: Record<string, string>;
-  data: unknown;
-};
+export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
+  const [state, setState] = useState<ContainerStateEnum>('stopped');
+  const [serverState, setServerState] = useState<
+    RuninngServerState | undefined
+  >(undefined);
 
-export function useContainerState() {
-  const [state, setState] = useState<ContainerStateEnum>('running'); // TODO revert to 'stopped'
+  const startServerImpl = useStartServer(quickJsVm, vfs);
+  const stopServerImpl = useStopServer();
 
   const startServer = useCallback(async () => {
+    stopServerImpl(serverState);
     if (state !== 'stopped') return;
 
     setState('starting-up');
     try {
-      await delay(); // await startServer();
+      // await delay(); // await startServer();
+      const newServerState = await startServerImpl();
+      setServerState(newServerState);
       setState('running');
     } catch (e) {
       setState('stopped');
+      stopServerImpl(serverState);
       throw e;
     }
-  }, [state]);
+  }, [serverState, startServerImpl, state, stopServerImpl]);
 
   const stopServer = useCallback(async () => {
     if (state !== 'running') return;
 
     setState('shutting-down');
     try {
-      await delay(); //await stopServer();
+      // await delay(); //await stopServer();
+      await stopServerImpl(serverState);
       setState('stopped');
     } catch (e) {
       setState('running');
       throw e;
     }
-  }, [state]);
+  }, [serverState, state, stopServerImpl]);
 
-  const sendFakeRequest = useCallback(async () => {
-    await delay();
-    return {
-      statusCode: 404,
-      headers: { header0: 'aaaaa' },
-      data: 'Hello world!',
-    } satisfies InterceptedFetchResponse;
-  }, []);
+  const sendFakeRequestCb = useCallback(
+    async (pathname: string) => {
+      if (!serverState) {
+        console.error(`Tried to send server request but no server is running?`);
+        return;
+      }
+      return sendFakeRequest(serverState.context, pathname);
+    },
+    [serverState]
+  );
 
   return {
     state,
     startServer,
     stopServer,
-    sendFakeRequest,
+    sendFakeRequest: sendFakeRequestCb,
   };
 }

@@ -1,13 +1,10 @@
 import React, { useCallback } from 'react';
 import { Button } from './button';
 import LoaderOverlayContent from './loaders';
-import {
-  ContainerState,
-  FakeRequestFn,
-  InterceptedFetchResponse,
-} from 'app/model/useContainerState';
+import { ContainerState, FakeRequestFn } from 'app/model/useContainerState';
 import useAsync, { AsyncState } from 'app/hooks/useAsync';
 import { stringify } from 'utils';
+import { InterceptedFetchResponse } from 'app/utils/sendFakeRequest';
 
 interface OutputPanelProps {
   containerState: ContainerState;
@@ -62,7 +59,14 @@ function ScreenWhenRunning(p: OutputPanelProps) {
       <FetchSection
         title="Fetch"
         buttonText="Fetch from the server"
-        pathname=""
+        pathname="hello?param0=1&param2"
+        sendFakeRequest={sendFakeRequest}
+      />
+
+      <FetchSection
+        title="Fetch with :userId"
+        buttonText="Fetch with param"
+        pathname="user/my-user-id"
         sendFakeRequest={sendFakeRequest}
       />
 
@@ -76,7 +80,7 @@ function ScreenWhenRunning(p: OutputPanelProps) {
       <FetchSection
         title="Fetch 500"
         buttonText="Fetch with internal error"
-        pathname="endpoint-500"
+        pathname="error-500"
         sendFakeRequest={sendFakeRequest}
       />
 
@@ -95,19 +99,19 @@ function FetchSection(props: {
   pathname: string;
   sendFakeRequest: FakeRequestFn;
 }) {
-  const { sendFakeRequest } = props;
-  const fetchState = useAsync(useCallback(sendFakeRequest, [sendFakeRequest]));
+  const { sendFakeRequest, pathname } = props;
+  const sendReq = useCallback(
+    () => sendFakeRequest(pathname),
+    [pathname, sendFakeRequest]
+  );
+  const fetchState = useAsync(sendReq);
 
   return (
     <div className="px-2 mb-4">
       <h3 className="mb-2 text-lg">{props.title}</h3>
 
       <div className="pl-5">
-        <Button
-          small
-          className="mb-3"
-          onClick={() => fetchState.execute(props.pathname)}
-        >
+        <Button small className="mb-3" onClick={fetchState.execute}>
           {props.buttonText}
         </Button>
 
@@ -122,7 +126,7 @@ function FetchSection(props: {
 function FakeFetchResponse({
   state,
 }: {
-  state: AsyncState<InterceptedFetchResponse>;
+  state: AsyncState<InterceptedFetchResponse | undefined>;
 }) {
   if (state.type === 'initial') return;
 
@@ -146,6 +150,14 @@ function FakeFetchResponse({
   }
 
   const resp = state.value;
+  if (!resp) {
+    return (
+      <div className="">
+        <h3 className="mb-1 text-lg">ERROR</h3>
+        <pre className="ml-5 bg-red-800 text-slate-200">(undefined?)</pre>
+      </div>
+    );
+  }
 
   return (
     <div className="">

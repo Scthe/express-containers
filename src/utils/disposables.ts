@@ -8,7 +8,7 @@ export type DisposablesList = WithDispose & {
   push: (name: string, disposable: Disposable | DisposablesList) => void;
 };
 
-const DEBUG = true;
+const DEBUG = false;
 
 interface NamedDisposable {
   name: string;

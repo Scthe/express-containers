@@ -5,6 +5,12 @@ import { withLimitedStackTrace } from 'utils';
 // TODO service worker to intercept?
 const VM_GLOBAL_REQUEST_HANDLER = '__portListeners';
 
+export type InterceptedFetchResponse = {
+  statusCode: number;
+  headers: Record<string, string>;
+  data: unknown;
+};
+
 export function sendFakeRequest(context: QuickJSContext, pathname: string) {
   const { serverPort } = quickJSContext_getExtras(context);
   if (serverPort === undefined) {
@@ -14,7 +20,7 @@ export function sendFakeRequest(context: QuickJSContext, pathname: string) {
     return;
   }
 
-  forwardRequestToVM(context, serverPort, pathname);
+  return forwardRequestToVM(context, serverPort, pathname);
 }
 
 function forwardRequestToVM(
@@ -50,6 +56,9 @@ function forwardRequestToVM(
   );
 
   console.log('--------- HOST RECEIVED RESPONSE --------');
-  console.log(context.dump(resultHandle));
+  const resp = context.dump(resultHandle);
+  console.log(resp);
   resultHandle.dispose();
+
+  return resp as InterceptedFetchResponse;
 }

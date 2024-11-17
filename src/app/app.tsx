@@ -14,14 +14,20 @@ import {
   HeaderTextEditor,
 } from './components/header';
 import { useShownFileSystem } from './model/useShownFileSystem';
+import { QuickJsVm } from './quick-js';
 
 // TODO less awkward title
 // TODO gh icon
 // TODO when creating bundled FS, copy all that is not 'node_modules'. It might contain view templates etc.
 
+interface Props {
+  vfs: VirtualFS;
+  quickJsVm: QuickJsVm;
+}
+
 /** https://github.com/bvaughn/react-resizable-panels */
-export function App({ vfs }: { vfs: VirtualFS }) {
-  const containerState = useContainerState();
+export function App({ vfs, quickJsVm }: Props) {
+  const containerState = useContainerState(quickJsVm, vfs);
 
   // TODO provide bundled fs
   const shownFileSystem = useShownFileSystem(vfs, undefined);
