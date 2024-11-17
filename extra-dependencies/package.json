@@ -1,0 +1,32 @@
+{
+  "name": "extra-dependencies",
+  "description": "",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "index.js",
+  "packageManager": "yarn@4.2.2",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "base64-js": "npm:^1.0.2",
+    "browser-pack": "npm:^6.0.1",
+    "browserify-buffer": "npm:buffer@^6.0.0",
+    "browserify-events": "npm:events@^3.3.0",
+    "browserify-is-arguments": "npm:is-arguments@^1.1.1",
+    "browserify-is-generator-function": "npm:is-generator-function@^1.0.10",
+    "browserify-is-typed-array": "npm:is-typed-array@^1.1.13",
+    "browserify-stream": "npm:stream-browserify@^3.0.0",
+    "browserify-url": "npm:url@^0.11.4",
+    "browserify-which-typed-array": "npm:which-typed-array@^1.1.15",
+    "buffer": "npm:~5.2.1",
+    "path": "npm:path-browserify@^1.0.1",
+    "punycode": "npm:^1.3.2",
+    "readable-stream": "^3.6.2",
+    "util": "npm:~0.12.0"
+  },
+  "dependencies-all": {
+    "pathe": "^1.1.2",
+    "string_decoder": "^1.3.0"
+  }
+}

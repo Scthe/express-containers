@@ -12,12 +12,12 @@ export function getDynamicModuleRegistry(
   commonDir,
   ignoreDynamicRequires
 ) {
-  console.log('getDynamicModuleRegistry', {
+  /*console.log('getDynamicModuleRegistry', {
     isDynamicRequireModulesEnabled,
     dynamicRequireModules,
     commonDir,
     ignoreDynamicRequires,
-  });
+  });*/
 
   // throw new Error(
   // `CommonJS plugin: Dynamic modules are not supported. Called getDynamicModuleRegistry()`
@@ -39,10 +39,10 @@ export function getDynamicModuleRegistry(
 }
 
 export function getDynamicRequireModules(patterns, dynamicRequireRoot) {
-  console.log('getDynamicRequireModules', {
+  /*console.log('getDynamicRequireModules', {
     patterns,
     dynamicRequireRoot,
-  });
+  });*/
 
   // throw new Error(
   // `CommonJS plugin: Dynamic modules are not supported. Called getDynamicRequireModules()`

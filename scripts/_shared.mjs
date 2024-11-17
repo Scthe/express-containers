@@ -13,7 +13,7 @@ const isValidExt = (path) => {
   );
 };
 
-export const listFiles = async (rootPath, virtualRootPath) => {
+export const copyFiles = async (rootPath, virtualRootPath) => {
   virtualRootPath = virtualRootPath === undefined ? rootPath : virtualRootPath;
   const files = await fsAsync.readdir(rootPath, { recursive: true });
   // console.log(files);
@@ -34,25 +34,4 @@ export const listFiles = async (rootPath, virtualRootPath) => {
   }
 
   return result;
-};
-
-export const copyFiles = (path) => listFiles(path, path);
-
-export const resolveFromPackageJson = async (moduleNames) => {
-  // const text = await fsAsync.readFile('package.json', { encoding: 'utf-8' });
-  // const json = JSON.parse(text);
-  // const dependencies = { ...json.devDependencies, ...json.dependencies };
-  // console.log(dependencies);
-
-  return moduleNames.map((moduleName) => {
-    // if (!dependencies[moduleName]) {
-    // throw new Error(`Unknown module '${moduleName}'`);
-    // }
-    // let name = dependencies[moduleName];
-    // if (name.startsWith('npm:')) {
-    // name = name.substring(4, name.indexOf('@'));
-    // }
-    let name = moduleName;
-    return `node_modules/${name}`;
-  });
 };

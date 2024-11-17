@@ -1,6 +1,6 @@
 import fs, { promises as fsAsync } from 'fs';
 import JSZip from 'jszip';
-import { listFiles, copyFiles, resolveFromPackageJson } from './_shared.mjs';
+import { copyFiles } from './_shared.mjs';
 
 async function createZipFS(files, outputPath) {
   const zip = new JSZip();
@@ -24,35 +24,31 @@ async function createZipFS(files, outputPath) {
   const outStats = await fsAsync.stat(outputPath);
   const sizeMb = outStats.size / 1024 / 1024;
 
+  // eslint-disable-next-line no-console
   console.log(
     `Written virtual filesystem zip to '${outputPath}'. Total ${fileCount} files (${sizeMb.toFixed(1)}MB).` // prettier-ignore
   );
 }
 
-const stdLibSupports = await resolveFromPackageJson([
-  'browserify-buffer',
-  'browserify-events',
-  'browserify-is-arguments',
-  'browserify-is-generator-function',
-  'browserify-is-typed-array',
-  'browserify-stream',
-  'browserify-which-typed-array',
-  'browserify-url',
-]);
+const APP_ROOT = 'example-app';
+const INTERNAL_LIBS = '$__node-std-lib';
 
 const FILE_LIST = await Promise.all([
   // add app files into './'. Includes 'package.json', 'index.js', and 'node_modules' with express.
-  listFiles('_references/vfs-content-0/init-fs-express', ''),
+  copyFiles(APP_ROOT, ''),
+
+  // add dependencies required by:
+  // - browserify mocks
+  // - my standard library mocks (start with browserify-*)
+  copyFiles('extra-dependencies/node_modules', INTERNAL_LIBS),
+
   // add node standard lib replacement into '/$__node-std-lib'
-  listFiles('src/node-std-lib', '$__node-std-lib'),
-  // add external modules required by standard lib replacement into '/node_modules'
-  copyFiles('node_modules/pathe'),
-  copyFiles('node_modules/readable-stream'),
-  copyFiles('node_modules/string_decoder'),
-  // add browserify's replacements into '/node_modules'
-  ...stdLibSupports.map((e) => listFiles(e)),
+  copyFiles('src/node-std-lib', INTERNAL_LIBS),
+
   // ipaddr.js has an.. unfortunate name
-  listFiles('_references/vfs-content-0/init-fs-express/node_modules/ipaddr.js/lib', ''), // prettier-ignore
+  // normally you would handle this by better bundler,
+  // but I'm too lazy
+  copyFiles(`${APP_ROOT}/node_modules/ipaddr.js/lib`, INTERNAL_LIBS),
 ]).then((e) => e.flat());
 // console.log(FILE_LIST);
 

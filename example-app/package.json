@@ -1,0 +1,14 @@
+{
+  "name": "express-test",
+  "description": "Usual boring express app",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "index.js",
+  "packageManager": "yarn@4.2.2",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
