@@ -3,7 +3,7 @@ const copyStaticFiles = require('esbuild-copy-static-files');
 const postCssPlugin = require('esbuild-style-plugin');
 
 const config = {
-  entryPoints: ['./src/app/index.web.tsx'],
+  entryPoints: ['./src/app/index.web.tsx', './src/app/service-worker.ts'],
   outdir: './build',
   bundle: true,
   define: {},

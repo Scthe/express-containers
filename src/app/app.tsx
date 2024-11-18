@@ -19,6 +19,8 @@ import { GitHubBtn } from './components/githubButton';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 
+// TODO turn service worker on/off for fetch
+// TODO static files in the browser
 // TODO when creating bundled FS, copy all that is not 'node_modules'. It might contain view templates etc.
 
 interface Props {

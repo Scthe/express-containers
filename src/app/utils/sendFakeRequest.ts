@@ -10,7 +10,7 @@ export type InterceptedFetchResponse = {
   headers: Record<string, string>;
   data: unknown;
   request: {
-    port: string;
+    port: number;
     pathname: string;
   };
 };

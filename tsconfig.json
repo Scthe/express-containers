@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext", "ESNext.Disposable"],
+    "lib": ["dom", "dom.iterable", "esnext", "ESNext.Disposable", "WebWorker"],
     "types": ["node"],
     "allowJs": true,
     "skipLibCheck": true,

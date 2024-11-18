@@ -2,9 +2,14 @@ import { QuickJsVm } from 'app/quick-js';
 import { useCallback, useState } from 'react';
 import { VirtualFS } from 'virtual-fs';
 import { RuninngServerState, useStartServer, useStopServer } from './utils';
-import { sendFakeRequest } from 'app/utils/sendFakeRequest';
+import {
+  InterceptedFetchResponse,
+  sendFakeRequest,
+} from 'app/utils/sendFakeRequest';
 import { toast } from 'react-toastify';
 import { quickJSContext_getExtras } from 'app/quick-js/context';
+import { ensurePrefix } from 'utils';
+import { SERVICE_WORKER_API } from './serviceWorkerApi';
 
 export type ContainerStateEnum =
   | 'running'
@@ -67,12 +72,38 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
   }, [serverState, state, stopServerImpl]);
 
   const sendFakeRequestCb = useCallback(
-    async (pathname: string) => {
+    async (pathname: string): Promise<InterceptedFetchResponse | undefined> => {
       if (!serverState) {
         console.error(`Tried to send server request but no server is running?`);
         return;
       }
-      return sendFakeRequest(serverState.context, pathname);
+
+      const port = getExpressPort(serverState);
+      const url = `//localhost:${port}${ensurePrefix(pathname, '/')}`;
+      SERVICE_WORKER_API.setContext(serverState.context);
+
+      const resp = await fetch(url, {
+        headers: { 'is-quick-js': '1' },
+      });
+      const text = await resp.text();
+      console.log('FETCH_RESP', {
+        code: resp.status,
+        headers: resp.headers,
+        data: text,
+      });
+
+      // without service worker
+      // return sendFakeRequest(serverState.context, pathname);
+
+      return {
+        statusCode: resp.status,
+        headers: Object.fromEntries(resp.headers),
+        data: text,
+        request: {
+          pathname,
+          port,
+        },
+      };
     },
     [serverState]
   );

@@ -10,6 +10,7 @@
       name="description"
       content="Run Express server inside QuickJS in a web browser. Live source code edit. Pefectly consistent and isolated. Broke something? Just refresh the page."
     />
+    <link rel="canonical" href="https://scthe.github.io/express-containers/" />
 
     <meta
       property="og:url"
@@ -42,5 +43,29 @@
     <div id="root"><!--app-html--></div>
     <div id="dialog-container"></div>
     <script src="index.web.js" defer></script>
+
+    <script>
+      let repository = '/express-containers';
+      let options = {
+        scope: `${repository}/`,
+      };
+      const isLocalhost = window.location.host.includes('localhost');
+      if (isLocalhost) {
+        repository = '';
+        options = undefined;
+      }
+
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker
+          .register(`${repository}/service-worker.js`, options)
+          .then(
+            (e) => {
+              console.log('Service worker installed ok');
+              e.update();
+            },
+            (e) => console.error('Service worker install error', e)
+          );
+      }
+    </script>
   </body>
 </html>
