@@ -5,6 +5,8 @@
 import {
   HostFetchResponse,
   MESSAGE_TYPES,
+  WORKER_REQUEST_MARKER,
+  WORKER_REQUEST_MARKER_VALUE,
   WorkerFetchRequest,
 } from './model/serviceWorkerShared';
 import { InterceptedFetchResponse } from './utils/sendFakeRequest';
@@ -27,13 +29,21 @@ self2.addEventListener('install', function (_e) {
 
 self2.addEventListener('fetch', function (event: FetchEvent) {
   // log(`Fetch request: '${event.request.url}'`);
-  const isQuickJsReq = event.request.headers.get('is-quick-js') === '1';
-  if (!isQuickJsReq) return;
+  if (!isQuickJsRequest(event.request)) return;
 
   log(`Fetch QuickJS request: '${event.request.url}'`);
   const respAsync = getResponseFromVM(event);
   event.respondWith(respAsync);
 });
+
+function isQuickJsRequest(request: Request) {
+  const byHeader =
+    request.headers.get(WORKER_REQUEST_MARKER) === WORKER_REQUEST_MARKER_VALUE;
+  const byQueryParam = request.url.includes(
+    `${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`
+  );
+  return byHeader || byQueryParam;
+}
 
 type UrlResolver = (resp: InterceptedFetchResponse | undefined) => void;
 
@@ -73,10 +83,10 @@ function getResponseFromVM(event: FetchEvent) {
 
 /** TODO [IGNORE] Persist headers and content too. Trivial but I'm too lazy */
 async function postRequestToHost(url: string) {
-  log(`Post request to host url='${url}'`);
-
   const clients = (await self2.clients.matchAll()) || [];
+  log(`Post request to host url='${url}' to ${clients.length} clients`);
   clients.forEach((client) => {
+    // log('post to client', client);
     client.postMessage({
       type: MESSAGE_TYPES.WORKER_REQUEST,
       url,

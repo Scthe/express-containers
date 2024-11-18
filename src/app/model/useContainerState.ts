@@ -2,14 +2,15 @@ import { QuickJsVm } from 'app/quick-js';
 import { useCallback, useState } from 'react';
 import { VirtualFS } from 'virtual-fs';
 import { RuninngServerState, useStartServer, useStopServer } from './utils';
-import {
-  InterceptedFetchResponse,
-  sendFakeRequest,
-} from 'app/utils/sendFakeRequest';
+import { InterceptedFetchResponse } from 'app/utils/sendFakeRequest';
 import { toast } from 'react-toastify';
 import { quickJSContext_getExtras } from 'app/quick-js/context';
 import { ensurePrefix } from 'utils';
 import { SERVICE_WORKER_API } from './serviceWorkerApi';
+import {
+  WORKER_REQUEST_MARKER,
+  WORKER_REQUEST_MARKER_VALUE,
+} from './serviceWorkerShared';
 
 export type ContainerStateEnum =
   | 'running'
@@ -39,6 +40,7 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
     setState('starting-up');
     try {
       const newServerState = await startServerImpl();
+      SERVICE_WORKER_API.setContext(newServerState.context);
 
       setServerState(newServerState);
       setState('running');
@@ -83,7 +85,7 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
       SERVICE_WORKER_API.setContext(serverState.context);
 
       const resp = await fetch(url, {
-        headers: { 'is-quick-js': '1' },
+        headers: { [WORKER_REQUEST_MARKER]: WORKER_REQUEST_MARKER_VALUE },
       });
       const text = await resp.text();
       console.log('FETCH_RESP', {

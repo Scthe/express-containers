@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from './button';
 import LoaderOverlayContent from './loaders';
 import { ContainerState } from 'app/model/useContainerState';
 import { FetchSection } from './outputPanel/fetchSection';
+import {
+  WORKER_REQUEST_MARKER,
+  WORKER_REQUEST_MARKER_VALUE,
+} from 'app/model/serviceWorkerShared';
 
 // TODO implement iframe
 // TODO tabs if iframe is implemented https://github.com/Scthe/ai-prompt-editor/blob/master/src/components/tabs.tsx
@@ -52,7 +56,40 @@ function ScreenWhenRunning(p: OutputPanelProps) {
         </Button>
       </div>
 
+      <IframeTest />
+
       <FetchSection containerState={p.containerState} />
+    </div>
+  );
+}
+
+// Problem: repository scope of the worker
+function IframeTest() {
+  const width = 200;
+  const height = 200;
+  const [showIframe, setShowIframe] = useState(false);
+
+  // const src = `http://localhost:3000/hello`;
+  // const src = `http://localhost:8000/hello?${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}&key=${showIframe}`;
+  // const src = `https://example.com/hello?${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`;
+  const src = `http://localhost:8000/?${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`;
+
+  return (
+    <div>
+      <Button small onClick={() => setShowIframe((k) => !k)}>
+        Toggle iframe
+      </Button>
+
+      {showIframe ? (
+        <div className="bg-gray-500">
+          <iframe
+            src={src}
+            height={height}
+            width={width}
+            sandbox="allow-same-origin allow-scripts"
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
