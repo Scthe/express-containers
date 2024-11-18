@@ -134,6 +134,8 @@ const FileIcon = ({ filename }: { filename: string }) => {
       return <FaList color="yellow" className="icon" aria-hidden />;
     case 'npmignore':
       return <DiNpm color="red" className="icon" aria-hidden />;
+    case 'html':
+      return <FaFile color="red" className="icon" aria-hidden />;
     case 'txt':
     case 'md':
       return <FaFile color="grey" className="icon" aria-hidden />;

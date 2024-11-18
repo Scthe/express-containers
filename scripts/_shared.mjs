@@ -8,6 +8,7 @@ const isValidExt = (path) => {
     p.endsWith('.mjs') ||
     p.endsWith('.cjs') ||
     p.endsWith('.json') ||
+    p.endsWith('.html') ||
     p.includes('license') ||
     p.indexOf('.') === -1 // executables
   );

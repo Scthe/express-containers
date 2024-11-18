@@ -7,6 +7,7 @@ import {
   WORKER_REQUEST_MARKER,
   WORKER_REQUEST_MARKER_VALUE,
 } from 'app/model/serviceWorkerShared';
+import { ensureSuffix } from 'utils';
 
 // TODO implement iframe
 // TODO tabs if iframe is implemented https://github.com/Scthe/ai-prompt-editor/blob/master/src/components/tabs.tsx
@@ -72,7 +73,9 @@ function IframeTest() {
   // const src = `http://localhost:3000/hello`;
   // const src = `http://localhost:8000/hello?${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}&key=${showIframe}`;
   // const src = `https://example.com/hello?${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`;
-  const src = `http://localhost:8000/?${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`;
+  let baseUrl = `${location.protocol}//${location.host}${location.pathname}`;
+  baseUrl = ensureSuffix(baseUrl, '/');
+  const src = `${baseUrl}?${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`;
 
   return (
     <div>
@@ -81,12 +84,13 @@ function IframeTest() {
       </Button>
 
       {showIframe ? (
-        <div className="bg-gray-500">
+        <div className="mt-2 overflow-hidden bg-gray-200 rounded-md">
           <iframe
             src={src}
             height={height}
-            width={width}
+            width={0}
             sandbox="allow-same-origin allow-scripts"
+            className="w-full"
           />
         </div>
       ) : null}

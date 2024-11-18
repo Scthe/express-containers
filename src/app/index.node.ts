@@ -21,6 +21,7 @@ main(REQUEST_PATHNAME);
 export async function main(pathname: string) {
   const vfs = await initFileSystemForCodeExec();
   await writeStaticFile(vfs, 'bundled-express.js', 'index.js');
+  // TODO copy from the original vfs
   writeFile(vfs, 'public/index.html', 'This is a mock index.html for node');
 
   const quickJsVm = await QuickJsVm.create();

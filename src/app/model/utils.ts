@@ -31,9 +31,10 @@ async function bundle(vfs: VirtualFS): Promise<string> {
 
 async function execBundledCode(
   quickJsVm: QuickJsVm,
+  originalVfs: VirtualFS,
   code: string
 ): Promise<RuninngServerState> {
-  const vfs = await initFileSystemForCodeExec();
+  const vfs = await initFileSystemForCodeExec(originalVfs);
   writeFile(vfs, 'index.js', code);
   quickJsVm.mountFileSystem(vfs);
   const context = await quickJsVm.createContext();
@@ -57,7 +58,7 @@ async function execBundledCode(
 export const useStartServer = (quickJsVm: QuickJsVm, vfs: VirtualFS) => {
   return useCallback(async () => {
     const code = await bundle(vfs);
-    const serverState = await execBundledCode(quickJsVm, code);
+    const serverState = await execBundledCode(quickJsVm, vfs, code);
     return serverState;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

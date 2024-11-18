@@ -19,6 +19,7 @@ globalThis.__portListeners = (() => {
       }
 
       const resp = handleRequest(expressApp, port, pathname);
+      resp.statusCode = resp.statusCode || 200;
 
       console.log('Will return response:', {
         // keys: Object.keys(resp),
