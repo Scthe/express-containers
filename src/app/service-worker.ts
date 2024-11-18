@@ -29,6 +29,8 @@ self2.addEventListener('install', function (_e) {
 
 self2.addEventListener('fetch', function (event: FetchEvent) {
   // log(`Fetch request: '${event.request.url}'`);
+  // log(`Fetch request:`, event);
+
   if (!isQuickJsRequest(event.request)) return;
 
   log(`Fetch QuickJS request: '${event.request.url}'`);
@@ -42,7 +44,13 @@ function isQuickJsRequest(request: Request) {
   const byQueryParam = request.url.includes(
     `${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`
   );
-  return byHeader || byQueryParam;
+
+  // from inside iframe
+  const byRefererQueryParam = request.referrer.includes(
+    `${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`
+  );
+
+  return byHeader || byQueryParam || byRefererQueryParam;
 }
 
 type UrlResolver = (resp: InterceptedFetchResponse | undefined) => void;
