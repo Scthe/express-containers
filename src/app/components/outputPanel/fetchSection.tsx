@@ -5,6 +5,7 @@ import { ContainerState } from 'app/model/useContainerState';
 import useAsync, { AsyncState } from 'app/hooks/useAsync';
 import { ensurePrefix, stringify, WithClassName } from 'utils';
 import { InterceptedFetchResponse } from 'app/utils/sendFakeRequest';
+import { Toggle } from '../toggle';
 
 interface Props {
   containerState: ContainerState;
@@ -23,52 +24,61 @@ export function FetchSection({ containerState }: Props) {
 
   const [pathname, setPathname] = useState(EXAMPLE_PATHNAMES[0]);
   const [lastSubmitPathname, setLastSubmitPathname] = useState('');
+  const [isServiceWorker, setIsServiceWorker] = useState(false);
 
   const sendReq = useCallback(() => {
     setLastSubmitPathname(pathname);
-    return sendFakeRequest(pathname);
-  }, [pathname, sendFakeRequest]);
+    return sendFakeRequest(pathname, isServiceWorker);
+  }, [isServiceWorker, pathname, sendFakeRequest]);
+
   const fetchState = useAsync(sendReq);
 
   return (
-    <div className="px-2 mb-4">
-      <h3 className="mb-3 text-xl">Fetch</h3>
+    <Indent className="px-2 pb-4">
+      <PathnameInput
+        baseUrl={`//localhost:${expressPort}/`}
+        pathname={pathname}
+        onChangePathname={setPathname}
+      />
 
-      <Indent>
-        <PathnameInput
-          baseUrl={`//localhost:${expressPort}/`}
-          pathname={pathname}
-          onChangePathname={setPathname}
-        />
+      <ExamplePathnames onChangePathname={setPathname} />
 
-        <ExamplePathnames onChangePathname={setPathname} />
+      <Toggle
+        small
+        checked={isServiceWorker}
+        id="use-service-worker"
+        onChecked={setIsServiceWorker}
+        srLabel="Use service worker"
+        className="mb-4"
+      >
+        <span className="inline-block ml-2">Use service worker</span>
+      </Toggle>
 
-        <div className="flex gap-4">
-          <Button small className="mb-3 " onClick={fetchState.execute}>
-            Fetch()
-          </Button>
-
-          {fetchState.state.type !== 'initial' ? (
-            <Button small className="mb-3 " onClick={fetchState.reset}>
-              Reset
-            </Button>
-          ) : null}
-        </div>
+      <div className="flex gap-4">
+        <Button small className="mb-3 " onClick={fetchState.execute}>
+          Fetch()
+        </Button>
 
         {fetchState.state.type !== 'initial' ? (
-          <>
-            <Indent label="Request" className="mb-2">
-              <KeyValue
-                label="Pathname"
-                value={ensurePrefix(lastSubmitPathname, '/')}
-              />
-            </Indent>
-
-            <FakeFetchResponse {...fetchState} />
-          </>
+          <Button small className="mb-3 " onClick={fetchState.reset}>
+            Reset
+          </Button>
         ) : null}
-      </Indent>
-    </div>
+      </div>
+
+      {fetchState.state.type !== 'initial' ? (
+        <>
+          <Indent label="Request" className="mb-2">
+            <KeyValue
+              label="Pathname"
+              value={ensurePrefix(lastSubmitPathname, '/')}
+            />
+          </Indent>
+
+          <FakeFetchResponse {...fetchState} />
+        </>
+      ) : null}
+    </Indent>
   );
 }
 

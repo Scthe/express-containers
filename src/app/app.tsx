@@ -8,20 +8,12 @@ import { OutputPanel } from './components/outputPanel';
 import { useContainerState } from './model/useContainerState';
 import { useSelectedFile } from './model/useSelectedFile';
 import classNames from 'classnames';
-import {
-  HeaderFiles,
-  HeaderOutput,
-  HeaderTextEditor,
-} from './components/header';
+import { HeaderFiles, HeaderTextEditor } from './components/header';
 import { useShownFileSystem } from './model/useShownFileSystem';
 import { QuickJsVm } from './quick-js';
 import { GitHubBtn } from './components/githubButton';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-
-// TODO turn service worker on/off for fetch
-// TODO static files in the browser
-// TODO when creating bundled FS, copy all that is not 'node_modules'. It might contain view templates etc.
 
 interface Props {
   vfs: VirtualFS;
@@ -99,7 +91,6 @@ export function App({ vfs, quickJsVm }: Props) {
         <Panel>
           <PanelGroup direction="vertical">
             <Panel className="flex flex-col bg-panel rounded-panel panel-activable">
-              <HeaderOutput />
               <OutputPanel containerState={containerState} />
             </Panel>
 

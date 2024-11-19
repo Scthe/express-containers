@@ -2,7 +2,10 @@ import { QuickJsVm } from 'app/quick-js';
 import { useCallback, useState } from 'react';
 import { VirtualFS } from 'virtual-fs';
 import { RuninngServerState, useStartServer, useStopServer } from './utils';
-import { InterceptedFetchResponse } from 'app/utils/sendFakeRequest';
+import {
+  InterceptedFetchResponse,
+  sendFakeRequest,
+} from 'app/utils/sendFakeRequest';
 import { toast } from 'react-toastify';
 import { quickJSContext_getExtras } from 'app/quick-js/context';
 import { ensurePrefix } from 'utils';
@@ -46,11 +49,11 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
       setState('running');
 
       const port = getExpressPort(newServerState);
-      toast.success(`Express is running on port ${port}.`);
+      toast.success(`Express server is running on port ${port}`);
     } catch (e) {
       setState('stopped');
       stopServerImpl(serverState);
-      toast.error(`Could not start Express. Check logs.`);
+      toast.error(`Could not start Express server. Check logs.`);
       throw e;
     }
   }, [serverState, startServerImpl, state, stopServerImpl]);
@@ -59,27 +62,36 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
     if (state !== 'running') return;
 
     // eslint-disable-next-line no-console
-    console.log(`Shutting down the Express server..`);
+    console.log(`Shutting down Express server..`);
     setState('shutting-down');
 
     try {
       await stopServerImpl(serverState);
       setState('stopped');
-      toast.success(`The Express is down`);
+      toast.success(`Express server is down`);
     } catch (e) {
       setState('running');
-      toast.error(`Could not stop Express. Check logs.`);
+      toast.error(`Could not stop Express server. Check logs.`);
       throw e;
     }
   }, [serverState, state, stopServerImpl]);
 
   const sendFakeRequestCb = useCallback(
-    async (pathname: string): Promise<InterceptedFetchResponse | undefined> => {
+    async (
+      pathname: string,
+      useServiceWorker = false
+    ): Promise<InterceptedFetchResponse | undefined> => {
       if (!serverState) {
         console.error(`Tried to send server request but no server is running?`);
         return;
       }
 
+      // without service worker
+      if (!useServiceWorker) {
+        return sendFakeRequest(serverState.context, pathname);
+      }
+
+      // service worker codeflow is a bit more complex
       const port = getExpressPort(serverState);
       const url = `//localhost:${port}${ensurePrefix(pathname, '/')}`;
       SERVICE_WORKER_API.setContext(serverState.context);
@@ -88,14 +100,12 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
         headers: { [WORKER_REQUEST_MARKER]: WORKER_REQUEST_MARKER_VALUE },
       });
       const text = await resp.text();
+      // eslint-disable-next-line no-console
       console.log('FETCH_RESP', {
         code: resp.status,
         headers: resp.headers,
         data: text,
       });
-
-      // without service worker
-      // return sendFakeRequest(serverState.context, pathname);
 
       return {
         statusCode: resp.status,

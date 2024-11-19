@@ -15,12 +15,10 @@
     "build": "node esbuild-script.js",
     "serve": "http-server build",
     "clean": "rimraf ./build/* || true",
-    "run:gen:fs-zip": "node scripts/gen-init-fs-zip.mjs",
+    "run:gen-fs": "node scripts/gen-init-fs-zip.mjs",
     "run:bundler": "tsx src/bundler-wasm/index.node.ts",
     "run:app": "tsx src/app/index.node.ts",
-    "run:node": "yarn run:gen:fs-zip && yarn run:bundler && yarn run:app",
-    "_UNUSED_build:bundler": "rollup -c packages/bundler/rollup.config.mjs",
-    "_UNUSED_run:gen:fs-json": "node scripts/gen-init-fs-json.js",
+    "run:node": "yarn run:gen-fs && yarn run:bundler && yarn run:app",
     "lint": "eslint -c .eslintrc.json --ext .jsx,.js,.tsx,.ts src"
   },
   "imports": {

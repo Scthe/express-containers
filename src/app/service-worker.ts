@@ -1,6 +1,6 @@
 // https://gist.github.com/kosamari/7c5d1e8449b2fbc97d372675f16b566e
 // https://web.dev/articles/two-way-communication-guide#channel-api
-// TODO workbox?
+// TODO [IGNORE] workbox?
 
 import {
   HostFetchResponse,
@@ -11,7 +11,7 @@ import {
 } from './model/serviceWorkerShared';
 import { InterceptedFetchResponse } from './utils/sendFakeRequest';
 
-// TODO handle as tag in logs panel
+// TODO [LOW] handle as tag in logs panel
 
 // eslint-disable-next-line no-console
 const log = (...args: unknown[]) => console.log('[Service Worker]', ...args);

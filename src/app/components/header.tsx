@@ -4,6 +4,7 @@ import { Toggle } from './toggle';
 import { ShownFileSystem } from 'app/model/useShownFileSystem';
 import { LogOriginBadge } from './logsPanel';
 import { Button } from './button';
+import classNames from 'classnames';
 
 const TitleRow = (props: PropsWithChildren & { title: string }) => {
   return (
@@ -34,19 +35,21 @@ export const HeaderFiles = (props: {
       <TitleRow title="Files">
         <HelpButton id="help-files" dialogLabel="Files">
           <HelpParagraph>
-            The content of the virtual file system. This is what the app sees as
-            files. Since we do not have access to the hard drive we emulate one.
+            <Emph>Content of the virtual file system.</Emph> This is what the
+            app sees as files. Since we do not have access to the hard drive we
+            emulate one.
           </HelpParagraph>
           <HelpParagraph>
-            You can edit any file you want. If you screw something up, just
-            refresh the page.
+            You can <Emph>edit any file you want.</Emph> If you screw something
+            up, refresh the page.
           </HelpParagraph>
           <HelpParagraph>
             <span className="opacity-40">Greyed-out</span> files are for
             internal use. Feel free to edit them too.
           </HelpParagraph>
           <HelpParagraph>
-            If the server is running, you view the bundled code too.
+            If the server is running,{' '}
+            <Emph>you can view the bundled code too.</Emph>
           </HelpParagraph>
         </HelpButton>
       </TitleRow>
@@ -76,25 +79,50 @@ export const HeaderTextEditor = (props: { filepath: string }) => {
   );
 };
 
-export const HeaderOutput = () => {
+export const HeaderOutput = (props: {
+  stopServerDisabled?: boolean;
+  onStopTheServer?: () => void;
+}) => {
   return (
     <Header>
       <TitleRow title="Server output">
-        <HelpButton id="help-output" dialogLabel="Server output">
-          <HelpParagraph>
-            Server management. Use this panel to start and stop the server.
-          </HelpParagraph>
-          <HelpParagraph>
-            Try editing the files and restarting the server. Any changes you did
-            will be then applied. For example, replace the endpoint return value
-            or the HTML template.
-          </HelpParagraph>
-          <HelpParagraph>
-            When the server is running, press the &quot;Fetch()&quot; button to
-            execute a sample request. You can also try endpoints that return
-            responses with status codes 404 or 500.
-          </HelpParagraph>
-        </HelpButton>
+        <div className="flex gap-2">
+          {props.onStopTheServer ? (
+            <Button
+              small
+              danger
+              onClick={props.onStopTheServer}
+              disabled={Boolean(props.stopServerDisabled)}
+            >
+              Stop the server
+            </Button>
+          ) : null}
+
+          <HelpButton id="help-output" dialogLabel="Server output">
+            <HelpParagraph>
+              Server management. Use this panel to{' '}
+              <Emph>start and stop the server</Emph>.
+            </HelpParagraph>
+            <HelpParagraph>
+              Try editing the files and restarting the server. Any changes you
+              make are then applied. For example, replace the endpoint return
+              value or the HTML template.
+            </HelpParagraph>
+            <HelpParagraph>
+              <Emph sectionTitle>Fetch</Emph>
+              When the server is running,{' '}
+              <Emph>press the &quot;Fetch()&quot; button</Emph> to execute a
+              sample request. You can also try endpoints that return responses
+              with status codes 404 or 500. If a service worker is used, the
+              request will show up in the dev tools network tab.
+            </HelpParagraph>
+            <HelpParagraph>
+              <Emph sectionTitle>Iframe</Emph>
+              Using service worker, we can intercept iframe requests. Navigation
+              inside the iframe also works.
+            </HelpParagraph>
+          </HelpButton>
+        </div>
       </TitleRow>
     </Header>
   );
@@ -119,14 +147,14 @@ export const HeaderLogs = (props: {
             <span className="inline-block ml-2">Autoscr.</span>
           </Toggle>
 
-          <Button small onClick={props.clearLogs} danger>
+          <Button small danger onClick={props.clearLogs}>
             Clear
           </Button>
 
           <HelpButton id="help-logs" dialogLabel="Logs">
             <HelpParagraph>
-              Logs from both the host and the server. Uses overridden
-              console.log() internally. Expect spam.
+              Logs from both the host and QuickJS. Uses overridden console.log()
+              internally.
             </HelpParagraph>
             <HelpParagraph>
               <LogOriginBadge origin="host" /> are messages originating from
@@ -137,15 +165,31 @@ export const HeaderLogs = (props: {
               QuickJS. It&apos;s the JavaScript engine that executes the code
               for the Express server.
             </HelpParagraph>
+            {/* 
             <HelpParagraph>
               <LogOriginBadge origin="service_worker" /> are messages from the
               service worker that intercepts all network connections. Requests
               to the Express server are redirected into QuickJS, rest are left
               untouched.
             </HelpParagraph>
+             */}
           </HelpButton>
         </div>
       </TitleRow>
     </Header>
   );
 };
+
+const Emph = ({
+  children,
+  sectionTitle,
+}: React.PropsWithChildren & { sectionTitle?: boolean }) => (
+  <span
+    className={classNames(
+      'text-accent-400',
+      sectionTitle && 'inline-block mr-2 uppercase'
+    )}
+  >
+    {children}
+  </span>
+);

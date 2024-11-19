@@ -34,17 +34,20 @@ export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
         });
       };
 
-      const maybeFile = getFileContent(vfs, source);
-      if (maybeFile.status === 'ok') {
-        return source;
-      }
-
+      // node build-ins
       let subdirPath = tryLoadFromDirectory(NODE_STD_LIB);
       if (subdirPath) {
         // console.log(`Found in node-std-lib '${subdirPath}'`);
         return subdirPath;
       }
 
+      // relative file
+      const maybeFile = getFileContent(vfs, source);
+      if (maybeFile.status === 'ok') {
+        return source;
+      }
+
+      // node_modules
       subdirPath = tryLoadFromDirectory('node_modules');
       if (subdirPath) {
         // console.log(`Found in node_modules '${subdirPath}'`);
@@ -77,18 +80,21 @@ export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
         );
       };
 
+      // node build-ins
       let maybeText = tryLoadFromDirectory(NODE_STD_LIB);
       if (maybeText) {
         // console.log('Found in node-std-lib');
         return maybeText;
       }
 
+      // relative file
       const maybeFile = getFileContent(vfs, id);
       if (maybeFile.status === 'ok') {
         // console.log(`Direct file found: '${id}'`);
         return maybeFile.content;
       }
 
+      // node_modules
       maybeText = tryLoadFromDirectory('node_modules');
       if (maybeText) {
         // console.log('Found in node_modules');

@@ -34,7 +34,7 @@ function copyPublicFiles(
   const publicDir = originalVfs.files[PUBLIC_DIR];
   if (!publicDir || publicDir.type !== 'directory') return;
 
-  // TODO make this a deep copy
+  // TODO [LOW] make this a deep copy
   Object.keys(publicDir.files).forEach((fileName) => {
     const path = `${PUBLIC_DIR}/${fileName}`;
     const readStatus = getFileContent(originalVfs, path);

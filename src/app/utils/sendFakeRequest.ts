@@ -2,7 +2,6 @@ import { QuickJSContext } from 'quickjs-emscripten';
 import { quickJSContext_getExtras } from '../quick-js/context';
 import { withLimitedStackTrace } from 'utils';
 
-// TODO [NOW] service worker to intercept?
 const VM_GLOBAL_REQUEST_HANDLER = '__portListeners';
 
 export type InterceptedFetchResponse = {
@@ -47,9 +46,9 @@ function forwardRequestToVM(
   ]);
   pathnameHandle.dispose();
   portHandle.dispose();
-  portListeners.dispose(); // TODO?
+  portListeners.dispose(); // TODO? [IGNORE] seems to be working. Not sure what this line did..
 
-  // TODO share with exec_script_file.ts
+  // TODO [LOW] share with exec_script_file.ts
   if (result.error) {
     const e = context.dump(result.error);
     const stack = e.stack ? e.stack.split('\n').join('\n') : ''; // yes, this is required
@@ -59,8 +58,10 @@ function forwardRequestToVM(
     () => result.unwrap() // can throw on error!
   );
 
+  // eslint-disable-next-line no-console
   console.log('--------- HOST RECEIVED RESPONSE --------');
   const resp = context.dump(resultHandle);
+  // eslint-disable-next-line no-console
   console.log(resp);
   resultHandle.dispose();
 

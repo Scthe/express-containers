@@ -103,3 +103,10 @@ export function safeJsonStringify(data: unknown, space?: number): string {
     space
   );
 }
+
+/** Clamp `x` to be in range `[minVal,maxVal]` */
+export const clamp = (x: number, minVal: number, maxVal: number) => {
+  const minimum = Math.min(minVal, maxVal);
+  const maximum = Math.max(minVal, maxVal);
+  return Math.max(minimum, Math.min(maximum, x));
+};
