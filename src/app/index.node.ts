@@ -5,11 +5,16 @@ import {
   quickJSContext_getExtras,
 } from './quick-js/context';
 import 'utils/static_files.node';
-import { writeFile, writeStaticFile } from 'virtual-fs';
+import {
+  loadVirtualFileSystem_zip,
+  writeFile,
+  writeStaticFile,
+} from 'virtual-fs';
 import { executeScriptFile } from './quick-js/exec_script_file';
 import { initFileSystemForCodeExec } from './utils';
 import { sendFakeRequest } from './utils/sendFakeRequest';
 
+export const VFS_FILENAME = 'vfs.zip';
 const REQUEST_PATHNAME = 'hello?param0=1&param2';
 // const REQUEST_PATHNAME = '';
 // const REQUEST_PATHNAME = 'user/my-user-id';
@@ -19,7 +24,8 @@ const REQUEST_PATHNAME = 'hello?param0=1&param2';
 main(REQUEST_PATHNAME);
 
 export async function main(pathname: string) {
-  const vfs = await initFileSystemForCodeExec();
+  const originalVfs = await loadVirtualFileSystem_zip(VFS_FILENAME);
+  const vfs = await initFileSystemForCodeExec(originalVfs);
   await writeStaticFile(vfs, 'bundled-express.js', 'index.js');
   // TODO copy from the original vfs
   writeFile(vfs, 'public/index.html', 'This is a mock index.html for node');

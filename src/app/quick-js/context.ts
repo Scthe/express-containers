@@ -19,7 +19,7 @@ interface ContextExtras {
   serverPort: number | undefined;
 }
 
-export const MONKEY_PATCH_SCRIPT_FILE = '$__monkey_patch.js';
+export const MONKEY_PATCH_SCRIPT_FILE = '_monkey_patch.js';
 
 export async function createQuickJSContext(
   runtime: QuickJSAsyncRuntime,

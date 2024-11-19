@@ -34,6 +34,23 @@ static/init-fs/package.json
 static/init-fs/my-bundle.js
 static/pathe
 static/bundled-express.js
+static/bundled-express*
+static/vfs*
+
+# example-app
+example-app/node_modules
+example-app/.yarn
+
+# example-app
+extra-dependencies/node_modules
+extra-dependencies/.yarn
+
+# TODO - uncomment
+# src/bundler-wasm/commonjs/*
+# src/bundler-wasm/pluginutils/*
+# src/bundler-wasm/json/*
+# rollup's wasm
+static/bindings_wasm_bg.wasm
 
 # custom
 *.code-workspace

@@ -11,8 +11,9 @@ import { FaFile, FaList, FaRegFolder, FaRegFolderOpen } from 'react-icons/fa';
 import './treeFileList.css';
 import { IFlatMetadata } from 'react-accessible-treeview/dist/TreeView/utils';
 import classNames from 'classnames';
+import { NODE_STD_LIB } from 'bundler-wasm/vfs-plugin';
 
-const INTERNAL_FILES = ['$__node-std-lib'];
+const INTERNAL_FILES = [NODE_STD_LIB];
 
 type ITreeNode = Parameters<typeof flattenTree>[0];
 

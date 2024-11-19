@@ -3,7 +3,7 @@ import { join } from 'pathe';
 import type { InputPluginOption } from 'rollup';
 import { getFileContent, VirtualFS } from 'virtual-fs';
 
-const NODE_STD_LIB = '$__node-std-lib';
+export const NODE_STD_LIB = '$__node-std-lib';
 
 export const vfsPlugin = (vfs: VirtualFS): InputPluginOption => {
   return {
