@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Express containers</title>
+    <meta
+      name="description"
+      content="Run Express server inside QuickJS in a web browser. Live source code edit. Pefectly consistent and isolated. Broke something? Just refresh the page."
+    />
+    <link rel="canonical" href="https://scthe.github.io/express-containers/" />
+
+    <meta
+      property="og:url"
+      content="https://github.com/Scthe/express-containers"
+    />
+    <meta property="og:title" content="Express containers" />
+    <meta
+      property="og:description"
+      content="Run Express server inside QuickJS in a web browser. Live source code edit. Pefectly consistent and isolated. Broke something? Just refresh the page."
+    />
+    <meta property="og:site_name" content="Express containers" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+    <style>
+      :root {
+        background-color: #262626;
+      }
+      :root,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="index.web.css" />
+  </head>
+  <body>
+    <div id="root"><!--app-html--></div>
+    <div id="dialog-container"></div>
+    <script src="index.web.js" defer></script>
+
+    <script>
+      const pathname = location.pathname; // "/express-containers/" or "/"
+      let repository = pathname;
+      let options = {
+        scope: pathname,
+      };
+
+      // dev env does not use pathname
+      const isDevEnv = pathname.length === 1; // "/"
+      if (isDevEnv) {
+        options = undefined;
+      }
+
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker
+          .register(`${repository}service-worker.js`, options)
+          .then(
+            (e) => {
+              console.log('Service worker installed ok');
+              e.update();
+            },
+            (e) => console.error('Service worker install error', e)
+          );
+      }
+    </script>
+  </body>
+</html>
