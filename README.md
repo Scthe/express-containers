@@ -18,11 +18,15 @@ Running the Express server in the web browser is [not new](https://glebbahmutov.
 
 
 
-> Image 1
+
+https://github.com/user-attachments/assets/d77f3e78-2877-4f5b-ac5a-8357364b614e
+
 
 *Start the Express server and execute a simple request against it. The request object is send directly to the QuickJS, without executing a network request. Edit the endpoint handler and restart the server to see changed response.*
 
-> Image 2
+
+https://github.com/user-attachments/assets/ad773417-d2e7-4fcf-8978-e298ebba3504
+
 
 *Using service workers to intercept network requests for iframes and `fetch()`. I've shown browser network devtools at the bottom. The user navigates inside the iframe. The initial index.html file is loaded from `express.static()` directory.*
 
