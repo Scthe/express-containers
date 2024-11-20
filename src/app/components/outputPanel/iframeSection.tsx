@@ -10,13 +10,19 @@ export function IframeSection() {
   const height = 200;
   const [showIframe, setShowIframe] = useState(false);
 
+  // pathname is required as index.html registers service worker for it
   let baseUrl = `${location.protocol}//${location.host}${location.pathname}`;
   baseUrl = ensureSuffix(baseUrl, '/');
   const src = `${baseUrl}?${WORKER_REQUEST_MARKER}=${WORKER_REQUEST_MARKER_VALUE}`;
 
   return (
     <div className="px-2 pb-4">
-      <Button small onClick={() => setShowIframe((k) => !k)}>
+      <ErrorMessage>
+        Iframes require service workers support, which is an experimental
+        feature. In case of problems try refreshing the page once.
+      </ErrorMessage>
+
+      <Button small onClick={() => setShowIframe((k) => !k)} className="mt-4">
         Toggle iframe
       </Button>
 
@@ -34,3 +40,7 @@ export function IframeSection() {
     </div>
   );
 }
+
+export const ErrorMessage = ({ children }: React.PropsWithChildren) => (
+  <div className="pl-2 mt-2 border-l-8 border-l-red-600">{children}</div>
+);

@@ -23,6 +23,7 @@ let NEXT_PERPETUAL_ID = 1;
 export class EventLoop {
   private timeoutIds: TimerId[] = [];
   private intervalIds: TimerId[] = [];
+  /** This is not really needed for our use case. Went a bit too far tried porting the original abstraction. */
   private perpetualsIds: number[] = [];
 
   private drainCallbacks: DrainCallback[] = [];

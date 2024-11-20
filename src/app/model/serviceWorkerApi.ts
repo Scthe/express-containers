@@ -8,6 +8,7 @@ import {
   MESSAGE_TYPES,
   WorkerFetchRequest,
 } from './serviceWorkerShared';
+import { ensurePrefix, ensureSuffix, removePrefix, removeSuffix } from 'utils';
 
 const LOG_TAG = '[ServiceWorkerApi]';
 
@@ -30,9 +31,12 @@ class ServiceWorkerApi {
       const data = event.data as WorkerFetchRequest;
       const url = data.url || '';
       const urlObj = new URL(url);
-      const pathname = urlObj.pathname + urlObj.search;
+      let pathname = urlObj.pathname;
+      pathname = removePrefix(pathname, location.pathname); // remove '/express-containers/'
+      pathname = ensurePrefix(pathname, '/');
+      pathname = ensureSuffix(pathname, '/');
 
-      const resp = await this.getResponseFromVM(pathname);
+      const resp = await this.getResponseFromVM(pathname + urlObj.search);
       this.sendMsgToWorker(url, resp);
     }
   };

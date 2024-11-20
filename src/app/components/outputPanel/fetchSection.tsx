@@ -6,6 +6,7 @@ import useAsync, { AsyncState } from 'app/hooks/useAsync';
 import { ensurePrefix, stringify, WithClassName } from 'utils';
 import { InterceptedFetchResponse } from 'app/utils/sendFakeRequest';
 import { Toggle } from '../toggle';
+import { ErrorMessage } from './iframeSection';
 
 interface Props {
   containerState: ContainerState;
@@ -49,12 +50,19 @@ export function FetchSection({ containerState }: Props) {
         id="use-service-worker"
         onChecked={setIsServiceWorker}
         srLabel="Use service worker"
-        className="mb-4"
+        className=""
       >
         <span className="inline-block ml-2">Use service worker</span>
       </Toggle>
 
-      <div className="flex gap-4">
+      {isServiceWorker ? (
+        <ErrorMessage>
+          Service workers support is an experimental feature. In case of
+          problems try refreshing the page once.
+        </ErrorMessage>
+      ) : null}
+
+      <div className="flex gap-4 mt-4">
         <Button small className="mb-3 " onClick={fetchState.execute}>
           Fetch()
         </Button>

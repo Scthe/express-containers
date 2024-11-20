@@ -35,7 +35,7 @@ export function useContainerState(quickJsVm: QuickJsVm, vfs: VirtualFS) {
   const stopServerImpl = useStopServer();
 
   const startServer = useCallback(async () => {
-    await stopServerImpl(serverState);
+    // await stopServerImpl(serverState); // not needed, can cause dispose() called-twice problems..
     if (state !== 'stopped') return;
 
     // eslint-disable-next-line no-console

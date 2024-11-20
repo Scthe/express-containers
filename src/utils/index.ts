@@ -47,6 +47,9 @@ export const replaceSuffix = (
 export const ensureSuffix = (str: string, suffix: string) =>
   str.endsWith(suffix) ? str : str + suffix;
 
+export const removePrefix = (str: string, prefix: string) =>
+  str.startsWith(prefix) ? str.slice(prefix.length) : str;
+
 export const ensurePrefix = (str: string, prefix: string) =>
   str.startsWith(prefix) ? str : prefix + str;
 

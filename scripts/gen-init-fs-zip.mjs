@@ -19,15 +19,16 @@ async function createZipFS(files, outputPath) {
 
   zip
     .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+    .on('end', async () => {
+      const outStats = await fsAsync.stat(outputPath);
+      const sizeMb = outStats.size / 1024 / 1024;
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `Written virtual filesystem zip to '${outputPath}'. Total ${fileCount} files (${sizeMb.toFixed(1)}MB).` // prettier-ignore
+      );
+    })
     .pipe(fs.createWriteStream(outputPath));
-
-  const outStats = await fsAsync.stat(outputPath);
-  const sizeMb = outStats.size / 1024 / 1024;
-
-  // eslint-disable-next-line no-console
-  console.log(
-    `Written virtual filesystem zip to '${outputPath}'. Total ${fileCount} files (${sizeMb.toFixed(1)}MB).` // prettier-ignore
-  );
 }
 
 const APP_ROOT = 'example-app';

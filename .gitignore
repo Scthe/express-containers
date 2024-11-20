@@ -21,21 +21,7 @@ build
 
 # initial fs
 static/*.zip
-static/*.json
-static/init-fs-express/*
-static/express-bundle.js
-static/gen-init-fs-zip/node_modules
-scripts/gen-init-fs-zip.js
-
-# static/init-fs with rollup
-static/init-fs/rollup.config.mjs
-static/init-fs/package-lock.json
-static/init-fs/package.json
-static/init-fs/my-bundle.js
-static/pathe
-static/bundled-express.js
 static/bundled-express*
-static/vfs*
 
 # example-app
 example-app/node_modules
@@ -45,14 +31,6 @@ example-app/.yarn
 extra-dependencies/node_modules
 extra-dependencies/.yarn
 
-# TODO - uncomment
-# src/bundler-wasm/commonjs/*
-# src/bundler-wasm/pluginutils/*
-# src/bundler-wasm/json/*
-# rollup's wasm
-static/bindings_wasm_bg.wasm
-
 # custom
-*.code-workspace
 _references
 log.txt

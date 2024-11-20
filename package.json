@@ -9,9 +9,9 @@
   "main": "src/index.web.tsx",
   "packageManager": "yarn@4.2.2",
   "scripts": {
-    "predev": "yarn clean && yarn gen:init-fs",
+    "predev": "yarn clean && yarn run:gen-fs",
     "dev": "node esbuild-script.js --dev",
-    "prebuild": "yarn clean && yarn gen:init-fs",
+    "prebuild": "yarn clean && yarn run:gen-fs",
     "build": "node esbuild-script.js",
     "serve": "http-server build",
     "clean": "rimraf ./build/* || true",

@@ -28,12 +28,12 @@ self2.addEventListener('install', function (_e) {
 });
 
 self2.addEventListener('fetch', function (event: FetchEvent) {
-  // log(`Fetch request: '${event.request.url}'`);
+  log(`Fetch request: '${event.request.url}'`);
   // log(`Fetch request:`, event);
 
   if (!isQuickJsRequest(event.request)) return;
 
-  log(`Fetch QuickJS request: '${event.request.url}'`);
+  log(`It's QuickJS request: '${event.request.url}'`);
   const respAsync = getResponseFromVM(event);
   event.respondWith(respAsync);
 });
@@ -91,7 +91,11 @@ function getResponseFromVM(event: FetchEvent) {
 
 /** TODO [IGNORE] Persist headers and content too. Trivial but I'm too lazy */
 async function postRequestToHost(url: string) {
-  const clients = (await self2.clients.matchAll()) || [];
+  const clientsRaw = await self2.clients.matchAll({
+    includeUncontrolled: true,
+  });
+  const clients = clientsRaw || [];
+
   log(`Post request to host url='${url}' to ${clients.length} clients`);
   clients.forEach((client) => {
     // log('post to client', client);

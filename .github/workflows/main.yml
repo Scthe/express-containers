@@ -21,6 +21,12 @@ jobs:
       - name: Build
         run: |
           yarn install
+
+          cd example-app && yarn install
+          cd ../extra-dependencies && yarn install
+          cd ..
+          yarn run:gen-fs
+
           yarn build
           touch build/.nojekyll
 
@@ -28,3 +34,10 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.6.4
         with:
           folder: build
+
+      - name: Upload-Artifact-For-Debug
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-build-result
+          path: build
+          include-hidden-files: true
