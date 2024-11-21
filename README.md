@@ -6,29 +6,35 @@ Running the Express server in the web browser is [not new](https://glebbahmutov.
 * **Live code edit.** I give you a text editor, what you do with it is up to you. Click the **"Start the server"** button to start the app.
     * Ever wanted to delete the whole content of `node_modules/express/lib/application.js`?
     * Edit `$__node-std-lib/_monkey_patch.js` to change node's `process` shim. E.g. silence Express' debug logs by removing the `DEBUG` key in `process.env`.
-    * Yes, you can change the Express server port. My shim even allows negative ports, but let's keep that secret between us.
-* Your **Express code does not run in the same environment as my page**. It's encapsulated inside Wasmed [QuickJS JavaScript engine](https://bellard.org/quickjs/). This app ships with a separate JS engine.
+    * Yes, you can change the Express server port. My shim even allows negative ports, but let's keep that as a secret between us.
+* Your **Express code does not run in the same environment as the main page**. It's encapsulated inside the Wasm-ed [QuickJS JavaScript engine](https://bellard.org/quickjs/). This app ships with a separate JS engine.
     * Do not try to access `window` from your code, it will not work.
-* **Automatically intercept network requests** using a service worker. My page can get the content from the Express server using both `fetch("http://localhost:3000/...)` and an iframe. Both requests will show up in the dev tools network tab.
+* **Automatically intercept network requests** using a service worker. The app can get the content from the Express server using both `fetch("http://localhost:3000/...)` and an iframe. Both requests will show up in the dev tools network tab.
     * Iframes can only work through service workers.
     * Service workers can be a bit painful. By default, `fetch()` forwards the request to QuickJS. Web browser's `fetch()` never executes, my button's `onClick` handler calls the function on the QuickJS's context instead. You can switch this off with a toggle.
 * **If you do something bad, refresh the page.** You get fresh, new, and untouched files.
 
 > This app is a proof of concept. The code quality is terrible and I only implemented whatever was needed to make it not crash. E.g. from `node:fs` you only get `stat()` and `createReadStream()`. That's enough to return static files (`app.use(express.static('public'));`). If the app does not work, check [WebContainers troubleshooting](https://developer.stackblitz.com/platform/webcontainers/browser-config). I'm not affiliated with them, but it's a technology similar to mine.
 
-
+<br />
+<br />
 
 
 https://github.com/user-attachments/assets/d77f3e78-2877-4f5b-ac5a-8357364b614e
 
 
-*Start the Express server and execute a simple request against it. The request object is send directly to the QuickJS, without executing a network request. Edit the endpoint handler and restart the server to see changed response.*
+*Start the Express server and execute a simple request against it. The request object is send directly to the QuickJS, without executing a network request. Edit the endpoint handler and restart the server to see the changed response.*
 
+<br />
+<br />
 
 https://github.com/user-attachments/assets/ad773417-d2e7-4fcf-8978-e298ebba3504
 
 
-*Using service workers to intercept network requests for iframes and `fetch()`. I've shown browser network devtools at the bottom. The user navigates inside the iframe. The initial index.html file is loaded from `express.static()` directory.*
+*Using service workers to intercept network requests for iframes and `fetch()`. I've shown browser network DevTools at the bottom. The user navigates inside the iframe. The initial index.html file is loaded from `express.static()` directory.*
+
+<br />
+<br />
 
 
 ## How does this work?
@@ -47,7 +53,7 @@ My app cannot download stuff from the npm repository (see FAQ). Thus, I download
 ### Start the Express server
 
 1. Bundle the code using `@rollup/browser` (uses Wasm internally).
-    1. One of the main problems is rewriting CommonJS (`const fs = require('fs');`) statements. We only support official ECMAScript modules (`import _ from _`).
+    1. One of the main problems is rewriting CommonJS (`const fs = require('fs');`) statements. Browsers only support official ECMAScript modules (`import * as fs from 'node:fs';`).
     2. I've written a custom Rollup plugin to redirect file access to my `VirtualFS` structure. E.g. Rollup asks for `"express"` and I resolve it as a string containing the file's content.
         1. My module resolution logic is.. simplified.
     3. I also ported Rollup's CommonJS and JSON plugins to work in a web environment. E.g. dynamic imports are not supported.
@@ -72,7 +78,7 @@ My app cannot download stuff from the npm repository (see FAQ). Thus, I download
 This is the easy way to send a request to the Express server. It does not involve service workers.
 
 1. Express is already running in our QuickJS context.
-    1. The definition of `running` is a peculiar one. QuickJS context has a state stored in the memory and we can call another script to execute "against" it. This memory contains info about the Express app. The app is not "running", "waiting", or "epoll()-ing". It exists in the memory.
+    1. The definition of `running` is a peculiar one. QuickJS context has a state stored in the memory and we can call another script to execute against it. This memory contains info about the Express app. The app is not "running", "waiting", or "epoll()-ing". It exists in the memory.
 2. Web browser calls a method we added to QuickJS context's `globalThis`.
     1. Look for `forwardRequestToVM(port=_, pathname=_)` log.
     2. In code: `const result = quickJsContext.callMethod(portListeners, 'invoke', [portHandle, pathnameHandle]);`
@@ -96,12 +102,12 @@ In retrospect, it might have been better to run everything inside a service work
 ## Usage
 
 1. `yarn install`
-2. `cd example-app && yarn install`
-3. `cd ../extra-dependencies && yarn install`
+2. `cd example-app && yarn install` - install dependencies for the Express app.
+3. `cd ../extra-dependencies && yarn install` - install extra dependencies required by Rollup and shims.
 4. `cd ..`
-5. `yarn run:gen-fs`. Create an initial filesystem - `"vfs.zip"` file.
-6. `yarn dev`. Start dev server.
-7. Go to [http://localhost:8000/](http://localhost:8000/)`
+5. `yarn run:gen-fs` - create an initial filesystem (`"vfs.zip"` file).
+6. `yarn dev` - start the dev server
+7. Go to [http://localhost:8000/](http://localhost:8000/).
 
 Or, `yarn build` builds the prod version into `./build`.
 
@@ -118,7 +124,7 @@ You can also run the app in node using `yarn run:node`. It is a combination of 3
 
 > Don't ask me, you are the one who has already read half of this readme.
 
-After [nanite WebGPU](https://github.com/Scthe/nanite-webgpu) I was interested in WebAssembly. It allowed me to run Metis and Meshoptimizer (both written in C) inside a web browser. What other things can it do?
+After [nanite WebGPU](https://github.com/Scthe/nanite-webgpu) I was interested in WebAssembly. It allowed me to run [Metis](https://github.com/KarypisLab/METIS) and [meshoptimizer](https://github.com/zeux/meshoptimizer) (both written in C) inside a web browser. What other things can it do?
 
 I also was curious about Edge computation environments (like Next.js's middleware). They are limited in capabilities and run JavaScript. This led to QuickJs, etc.
 
@@ -136,7 +142,7 @@ Seems like a lot of work. I'm happy with my proof of concept. If you ever wanted
 
 I was interested in edge computing, Next.js' middleware in particular. It runs a [gutted JS environment](https://wintercg.org/). As for usage, think of nginx's Lua scripts.
 
-The main goal is to separation the data. I have strict control over what is sent to QuickJS. If QuickJS crashes, I can restart it. For example, each Express request is reduced to a `(port, pathname, query string)` tuple. I remove all request headers as none of the examples use them. It's a separate JS environment with strict API boundaries.
+The main goal is to isolate the data. I have strict control over what is sent to QuickJS. If QuickJS crashes, I can restart it. For example, each Express request is reduced to a `(port, pathname, query string)` tuple. I remove all request headers as none of the examples use them. It's a separate JS environment with strict API boundaries.
 
 An interesting experiment. And it works. In practice, it should be possible to get similar guarantees from web workers.
 
@@ -147,7 +153,7 @@ Probably. There were a lot of blind alleys in this project. I'm just releasing s
 
 ### What's the "vfs.zip"?
 
-"vfs.zip" is the initial state of the virtual filesystem. It mainly contains the express app and its' `node_modules`. The first thing my app does is unpack it and shove the data into my own `VirtualFS` structure. I also added a few of my internal files to make it easier.
+"vfs.zip" is the initial state of the virtual filesystem. It mainly contains the express app and its' `node_modules`. The first thing my app does is unpack it and shove the data into my own `VirtualFS` structure. I also added a few of my internal files.
 
 The file is built during the GitHub actions workflow. Reasons to not fetch packages from npm at runtime:
 
@@ -167,21 +173,28 @@ In the end, everything lands in my  `VirtualFS` structure. And this is where the
 
 ### What's the difference to WebContainers?
 
-I'm not sure how StackBlitz's WebContainers work, but the main purpose is similar. The user gets to change files in a virtual filesystem and run newly written node code inside the browser. All with a single button click. The basic problems are similar. E.g. They also have to handle CommonJS (`const fs = require('fs')`) as it's not supported in web browsers.
+I'm not sure how StackBlitz's WebContainers work, but the main purpose is similar. The user gets to change files in a virtual filesystem and run newly written node code inside the browser. All with a single button click, no external connection is required. The basic problems are similar. E.g. They also have to handle CommonJS (`const fs = require('fs')`) as it's not supported in web browsers.
 
 I admit I did not research much of their technology. Can all their features be supported just by JS/Wasm shims? What about natively compiled packages? There is a way to inject the non-compiled versions, but it seems like a lot of "fix error after error till it works" programming. Looking at their marketing materials they ported e.g. `npm`, `pnpm`, and `yarn`. I never looked at how package managers work.
 
 I'm not sure if they use a separate JavaScript environment (QuickJS for me). How do you stop access to global variables? Half of the npm checks for `window` to make decisions at runtime. You can sidestep this problem with bundling. Even simple Immediately Invoked Function Expressions (IIFE) allow total control over code dependencies. But you also have to deal with all other global stuff like `location`, `URL`, and `document`. You can (**should**) use web workers. Not sure how much API they leak. With QuickJS I ignore the problem. It does not have variables from the browser (e.g. `window`) or node (e.g. `process`). I even got to write my own (quasi) event loop.
 
-How do they deal with 1+ GB of `node_modules` that are needed by seemingly every node app? It has to be downloaded and persisted. I heard indexed DB is used for storage in similar cases.
+[How do they deal with](https://medium.com/stackblitz-blog/introducing-turbo-5x-faster-than-yarn-npm-and-runs-natively-in-browser-cc2c39715403) 1+ GB of `node_modules` that are needed by seemingly every node app? It has to be downloaded and persisted. I heard indexed DB is used for storage in similar cases.
 
-Looking at StackBlitz's career page, they want TypeScript and Rust. I know Rust has some ABI problems with Wasm e.g. compatibility with C (which might be needed?). I think a lot of choice is limited by easy access to Wasm modules. Unless you rely on in-house libraries or Rust std lib (is it Wasm-compatible?) to help with the implementation. Or glue WebAssembly with TS.
+Looking at StackBlitz's career page, they want TypeScript and Rust. I know Rust has some ABI problems with Wasm e.g. compatibility with C (which might be needed?). I think a lot of choice is limited by easy access to Wasm modules. Unless you rely on many in-house libraries or Rust std lib (is it Wasm-compatible?) to help with the implementation. Or glue WebAssembly modules with tons of TS.
+
+
+### Can this be used with WebRTC?
+
+Sure, why not? Receive a message, format it as a url to QuickJS Express server, and then forward the response to the client. Or use it with service workers. The browser calls `fetch()` which gets intercepted. Congratulations, your browser is now a proxy server.
+
 
 
 ## Honourable mentions
 
 * [Rollup](https://rollupjs.org/). Never used it before, but works well. Even has a browser version (using Wasm) - perfect! API is as good and enjoyable as `esbuild`, which is rare.
     * The plugin API is a bit strange, but I did not get in-depth into it.
+    * [esbuild-wasm](https://www.npmjs.com/package/esbuild-wasm) should also work. Will require custom plugins to handle the virtual filesystem.
 * Fabrice Bellard and Charlie Gordon for [QuickJS Javascript Engine](https://bellard.org/quickjs/).
 * [kosamari](https://github.com/kosamari) for ["ServiceWorker for github pages"](https://gist.github.com/kosamari/7c5d1e8449b2fbc97d372675f16b566e) notes.
 
